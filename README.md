@@ -10,6 +10,9 @@ cinco estructuras de datos implementadas desde cero y documentación en español
 - **Miguel Angel Vergara Morales**
 - **Danney Yuliana Medina Males**
 
+El detalle del aporte de Danney, sus seis pruebas de refuerzo y la revisión del manual de usuario están
+en [`docs/aporte-danney.md`](docs/aporte-danney.md).
+
 ## Características
 
 - Reparto y reglas completas del Klondike.
@@ -50,6 +53,7 @@ Luego abrir:
 
 - **Juego:** <http://localhost:8000>
 - **Pruebas:** <http://localhost:8000/tests/>
+- **Pruebas de refuerzo:** <http://localhost:8000/tests/danney.html>
 
 También se puede usar la extensión **Live Server** de VS Code o publicar la rama `main` con GitHub
 Pages.
@@ -67,6 +71,12 @@ pistas, de la rendición, de los pases ilimitados y de la validación de instant
 completa está en [`docs/pruebas.html`](docs/pruebas.html) y en
 [`docs/Pruebas_Klondike.pdf`](docs/Pruebas_Klondike.pdf).
 
+La suite de refuerzo de Danney se ejecuta en `/tests/danney.html` y reporta:
+
+```text
+6 pruebas aprobadas · 0 fallidas · 6 total
+```
+
 ## Documentación
 
 | Documento | HTML | PDF |
@@ -75,6 +85,9 @@ completa está en [`docs/pruebas.html`](docs/pruebas.html) y en
 | Manual técnico | [`docs/manual-tecnico.html`](docs/manual-tecnico.html) | [`docs/Manual_Tecnico_Klondike.pdf`](docs/Manual_Tecnico_Klondike.pdf) |
 | Evidencia de pruebas | [`docs/pruebas.html`](docs/pruebas.html) | [`docs/Pruebas_Klondike.pdf`](docs/Pruebas_Klondike.pdf) |
 | Diagrama de clases | [`docs/diagrama-clases.svg`](docs/diagrama-clases.svg) | Incluido en el manual técnico |
+
+El aporte individual de Danney, con las seis pruebas de refuerzo y la revisión del manual de usuario,
+está documentado en [`docs/aporte-danney.md`](docs/aporte-danney.md).
 
 El diagrama también está disponible como imagen PNG y como fuente editable de Graphviz:
 

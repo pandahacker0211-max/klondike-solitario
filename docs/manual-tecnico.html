@@ -936,6 +936,7 @@ undo() {
       <li>Iniciar el servidor local con <code>python3 -m http.server 8000</code> desde la raíz del proyecto.</li>
       <li>Abrir <code>http://localhost:8000/tests/</code> en el navegador.</li>
       <li>Verificar el resumen verde: <strong>40 pruebas aprobadas · 0 fallidas · 40 total</strong>.</li>
+      <li>Para la suite de refuerzo, abrir <code>/tests/danney.html</code> y verificar <strong>6/6</strong>.</li>
       <li>Si se modifica un módulo, recargar con <code>Ctrl</code> + <code>F5</code> o reiniciar el navegador; los módulos ES se cachean con fuerza.</li>
     </ol>
 
@@ -1027,8 +1028,8 @@ undo() {
         </tr>
         <tr>
           <td>Pruebas y evidencia</td>
-          <td>Suite propia de 40 pruebas y validación manual documentada.</td>
-          <td><code>/tests/</code>; Figura 2; sección 8.3.</td>
+          <td>Suite propia de 40 pruebas, suite de refuerzo de 6 pruebas y validación manual documentada.</td>
+          <td><code>/tests/</code> y <code>/tests/danney.html</code>; Figura 2; sección 8.3.</td>
         </tr>
         <tr>
           <td>Repositorio con aportes del equipo</td>
@@ -1118,10 +1119,17 @@ python3 -m http.server 8000</code></pre>
         </tr>
         <tr>
           <td><strong>Danney Yuliana Medina Males</strong></td>
-          <td>Pruebas de refuerzo de las estructuras, revisión funcional del manual de usuario y preparación de la demostración. Los detalles y comandos de su aporte están en el historial de commits del repositorio.</td>
+          <td>Seis pruebas de refuerzo de las estructuras, revisión funcional del manual de usuario y preparación de la demostración. El detalle de su aporte y la evidencia 6/6 están en <a href="aporte-danney.md">docs/aporte-danney.md</a>.</td>
         </tr>
       </tbody>
     </table>
+
+    <p class="small muted">
+      El aporte individual de Danney se documenta en
+      <a href="aporte-danney.md"><code>docs/aporte-danney.md</code></a>. Su suite se ejecuta en
+      <code>/tests/danney.html</code> y reporta <strong>6 pruebas aprobadas</strong>, sin modificar las
+      40 pruebas principales.
+    </p>
 
     <h3>11.2 Qué debe poder explicar cada integrante</h3>
     <ul>
@@ -1132,7 +1140,7 @@ python3 -m http.server 8000</code></pre>
       <li>Cómo se inserta, busca y elimina en el BST, y cómo se obtiene el top 10 con el recorrido inorden.</li>
       <li>Cómo se guarda una instantánea y por qué el deshacer no necesita revertir cada movimiento a mano.</li>
       <li>Cómo se detecta la victoria y la derrota, y qué pasa al rendirse.</li>
-      <li>Cómo se ejecutan las pruebas y qué significa cada bloque de la tabla 8.1.</li>
+      <li>Cómo se ejecutan la suite principal (40/40) y la suite de refuerzo (6/6), y qué significa cada bloque de la tabla 8.1.</li>
     </ul>
 
     <h3>11.3 Guion de demostración (10 minutos)</h3>
@@ -1141,7 +1149,7 @@ python3 -m http.server 8000</code></pre>
       <li><strong>Partida (3 min):</strong> robar, seleccionar, mover a fundación, mover un grupo, usar pista y deshacer/rehacer.</li>
       <li><strong>Inspector (2 min):</strong> abrir estructuras y señalar la cola del mazo, la pila del descarte, una columna con recorrido de ida y vuelta, el cursor de pases y los recorridos del BST.</li>
       <li><strong>Ranking (1 min):</strong> mostrar el top, explicar la clave y la poda, y borrar con confirmación.</li>
-      <li><strong>Pruebas (2 min):</strong> abrir <code>/tests/</code>, mostrar el resumen 40/40 y explicar dos pruebas: <code>splitFrom</code> y derrota sin movimientos.</li>
+      <li><strong>Pruebas (2 min):</strong> abrir <code>/tests/</code> y mostrar el resumen 40/40; abrir <code>/tests/danney.html</code> y mostrar el 6/6. Explicar dos pruebas: <code>splitFrom</code> y derrota sin movimientos.</li>
       <li><strong>Cierre (1 min):</strong> repasar la tabla de complejidades y las limitaciones.</li>
     </ol>
 
@@ -1219,7 +1227,7 @@ python3 -m http.server 8000</code></pre>
   </section>
 
   <!-- ============================================================ 13 -->
-  <section class="page-break">
+  <section>
     <h2>13. Referencias</h2>
     <ul>
       <li>MDN Web Docs. <em>JavaScript — Modules</em>, <em>Classes</em>, <em>Private class fields</em>, <em>Drag and drop API</em>.</li>
