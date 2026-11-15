@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evidencia de pruebas — Klondike</title>
+  <link rel="stylesheet" href="docs.css">
+  <style>
+    .figure--tall img {
+      width: auto;
+      max-width: 100%;
+      max-height: 238mm;
+      margin: 0 auto;
+    }
+
+    .test-table td:first-child {
+      width: 9mm;
+      text-align: right;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .test-table td:nth-child(2) {
+      width: 28mm;
+      white-space: nowrap;
+    }
+
+    .test-table td:last-child {
+      width: 18mm;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .test-table .check {
+      font-size: 11pt;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4mm;
+      margin: 5mm 0 6mm;
+    }
+
+    .summary-card {
+      padding: 4mm;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f7faf7;
+      text-align: center;
+    }
+
+    .summary-card strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 22pt;
+      line-height: 1;
+      color: var(--green);
+    }
+
+    .summary-card span {
+      display: block;
+      margin-top: 1.5mm;
+      font-size: 8.6pt;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<main class="sheet">
+
+  <header class="cover" style="min-height: auto; padding-bottom: 4mm;">
+    <div class="cover__band" style="padding: 12mm 12mm;">
+      <p class="cover__kicker">Proyecto final · Estructuras de Datos</p>
+      <h1 class="cover__title" style="font-size: 30pt;">Evidencia de pruebas</h1>
+      <p class="cover__subtitle">Klondike — Solitario en JavaScript</p>
+      <p class="cover__suits" aria-hidden="true">♠ ♥ ♦ ♣</p>
+      <div class="cover__meta">
+        <span><strong>Suite:</strong> 40 pruebas de estructuras, juego, reglas y ranking</span>
+        <span><strong>Resultado:</strong> 40 aprobadas · 0 fallidas · 40 total</span>
+        <span><strong>Entorno:</strong> Firefox 160 · servidor local · noviembre de 2026</span>
+      </div>
+      <div class="cover__bottom">
+        <span>Miguel Angel Vergara Morales</span>
+        <span>Danney Yuliana Medina Males</span>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Resumen de la ejecución</h2>
+    <p class="lead">
+      La suite se ejecuta en el navegador desde <code>http://localhost:8000/tests/</code>. El runner es
+      propio, no usa dependencias externas y muestra el resultado de cada prueba en orden. La última
+      ejecución completa terminó sin fallos.
+    </p>
+
+    <div class="summary-grid">
+      <div class="summary-card"><strong>40</strong><span>Aprobadas</span></div>
+      <div class="summary-card"><strong>0</strong><span>Fallidas</span></div>
+      <div class="summary-card"><strong>40</strong><span>Total</span></div>
+      <div class="summary-card"><strong>100%</strong><span>Éxito</span></div>
+    </div>
+
+    <figure class="figure">
+      <img src="img/10-pruebas-resumen.png" alt="Resumen del runner: 40 pruebas aprobadas, 0 fallidas, 40 total">
+      <figcaption class="figure__caption">
+        <strong>Figura 1.</strong> Resumen mostrado por el runner al finalizar la ejecución.
+      </figcaption>
+    </figure>
+
+    <div class="callout callout--ok">
+      <p class="callout__title">Cómo reproducir la evidencia</p>
+      <ol>
+        <li>Abrir una terminal en la raíz del proyecto.</li>
+        <li>Ejecutar <code>python3 -m http.server 8000</code>.</li>
+        <li>Abrir <code>http://localhost:8000/tests/</code> en Firefox, Chrome o Edge.</li>
+        <li>Verificar el resumen verde y desplazarse para revisar las 40 pruebas.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Listado completo de pruebas</h2>
+    <p>
+      La tabla reproduce el nombre exacto de cada prueba y su resultado. Las primeras 18 pruebas cubren
+      las cinco estructuras; las demás cubren el motor del juego, las reglas y el ranking.
+    </p>
+
+    <table class="table--compact test-table">
+      <thead>
+        <tr><th>#</th><th>Bloque</th><th>Prueba</th><th>Resultado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Pila</td><td>apilar, ver tope y tamaño</td><td><span class="check">✓</span></td></tr>
+        <tr><td>2</td><td>Pila</td><td>desapilar respeta LIFO</td><td><span class="check">✓</span></td></tr>
+        <tr><td>3</td><td>Pila</td><td>clear y toArray</td><td><span class="check">✓</span></td></tr>
+        <tr><td>4</td><td>Cola</td><td>encolar, ver frente y tamaño</td><td><span class="check">✓</span></td></tr>
+        <tr><td>5</td><td>Cola</td><td>desencolar respeta FIFO</td><td><span class="check">✓</span></td></tr>
+        <tr><td>6</td><td>Cola</td><td>clear</td><td><span class="check">✓</span></td></tr>
+        <tr><td>7</td><td>Lista doble</td><td>insertar al inicio, final y posición</td><td><span class="check">✓</span></td></tr>
+        <tr><td>8</td><td>Lista doble</td><td>recorrer en ambos sentidos</td><td><span class="check">✓</span></td></tr>
+        <tr><td>9</td><td>Lista doble</td><td>buscar, eliminar y eliminar por posición</td><td><span class="check">✓</span></td></tr>
+        <tr><td>10</td><td>Lista doble</td><td>splitFrom divide y conserva el orden</td><td><span class="check">✓</span></td></tr>
+        <tr><td>11</td><td>Lista doble</td><td>posiciones inválidas lanzan RangeError</td><td><span class="check">✓</span></td></tr>
+        <tr><td>12</td><td>Lista circular</td><td>insertar, recorrer y buscar</td><td><span class="check">✓</span></td></tr>
+        <tr><td>13</td><td>Lista circular</td><td>advance da la vuelta</td><td><span class="check">✓</span></td></tr>
+        <tr><td>14</td><td>Lista circular</td><td>insertar en posición y eliminar</td><td><span class="check">✓</span></td></tr>
+        <tr><td>15</td><td>BST</td><td>insertar, buscar y recorridos</td><td><span class="check">✓</span></td></tr>
+        <tr><td>16</td><td>BST</td><td>mínimo, máximo y altura</td><td><span class="check">✓</span></td></tr>
+        <tr><td>17</td><td>BST</td><td>eliminar hoja, un hijo y dos hijos</td><td><span class="check">✓</span></td></tr>
+        <tr><td>18</td><td>BST</td><td>claves repetidas y clear</td><td><span class="check">✓</span></td></tr>
+        <tr><td>19</td><td>Juego</td><td>reparto inicial correcto y 52 cartas únicas</td><td><span class="check">✓</span></td></tr>
+        <tr><td>20</td><td>Juego</td><td>robar una carta mueve del mazo al descarte</td><td><span class="check">✓</span></td></tr>
+        <tr><td>21</td><td>Juego</td><td>robar tres cartas</td><td><span class="check">✓</span></td></tr>
+        <tr><td>22</td><td>Juego</td><td>reciclar conserva el orden de robo y avanza el pase</td><td><span class="check">✓</span></td></tr>
+        <tr><td>23</td><td>Juego</td><td>no se puede reciclar si se agotaron los pases</td><td><span class="check">✓</span></td></tr>
+        <tr><td>24</td><td>Juego</td><td>mover una carta del descarte a su fundación</td><td><span class="check">✓</span></td></tr>
+        <tr><td>25</td><td>Juego</td><td>mover un grupo válido entre columnas</td><td><span class="check">✓</span></td></tr>
+        <tr><td>26</td><td>Juego</td><td>mover un grupo válido de varias cartas</td><td><span class="check">✓</span></td></tr>
+        <tr><td>27</td><td>Juego</td><td>una secuencia rota no se puede mover como grupo</td><td><span class="check">✓</span></td></tr>
+        <tr><td>28</td><td>Juego</td><td>una columna vacía solo acepta un Rey</td><td><span class="check">✓</span></td></tr>
+        <tr><td>29</td><td>Juego</td><td>deshacer y rehacer un robo</td><td><span class="check">✓</span></td></tr>
+        <tr><td>30</td><td>Juego</td><td>autocompletar mueve los reyes y termina la partida</td><td><span class="check">✓</span></td></tr>
+        <tr><td>31</td><td>Juego</td><td>victoria al completar las cuatro fundaciones</td><td><span class="check">✓</span></td></tr>
+        <tr><td>32</td><td>Juego</td><td>derrota cuando no hay movimientos ni pases</td><td><span class="check">✓</span></td></tr>
+        <tr><td>33</td><td>Reglas</td><td>columnas, fundaciones y secuencias</td><td><span class="check">✓</span></td></tr>
+        <tr><td>34</td><td>Ranking</td><td>insertar, ordenar, buscar, eliminar y podar</td><td><span class="check">✓</span></td></tr>
+        <tr><td>35</td><td>Ranking</td><td>qualifies respeta el límite del top</td><td><span class="check">✓</span></td></tr>
+        <tr><td>36</td><td>Juego</td><td>pistas para fundación, robo, reciclaje y sin movimientos</td><td><span class="check">✓</span></td></tr>
+        <tr><td>37</td><td>Juego</td><td>mover una carta de la fundación al tablero descuenta puntos</td><td><span class="check">✓</span></td></tr>
+        <tr><td>38</td><td>Juego</td><td>rendirse marca derrota y se puede deshacer</td><td><span class="check">✓</span></td></tr>
+        <tr><td>39</td><td>Juego</td><td>los pases ilimitados no se agotan</td><td><span class="check">✓</span></td></tr>
+        <tr><td>40</td><td>Juego</td><td>un snapshot inválido no se carga</td><td><span class="check">✓</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="page-break">
+    <h2>Captura completa del runner</h2>
+    <figure class="figure figure--tall">
+      <img src="img/10-pruebas.png" alt="Captura completa del runner con las 40 pruebas aprobadas">
+      <figcaption class="figure__caption">
+        <strong>Figura 2.</strong> Captura completa de la ejecución: las 40 pruebas aparecen con su
+        marca de aprobación y el resumen superior indica 0 fallidas.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="page-break">
+    <h2>Validación manual de la interfaz</h2>
+    <p>
+      Además de la suite automatizada, se recorrió el juego en Firefox con una ventana de 1280 × 900 px
+      y una vista móvil de 500 × 900 px. La siguiente tabla resume los escenarios comprobados.
+    </p>
+
+    <table class="table--compact">
+      <thead>
+        <tr><th>Escenario</th><th>Resultado esperado</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Robo de 1 y de 3 cartas</td><td>El descarte recibe la cantidad correcta y el contador de movimientos aumenta.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Selección de carta</td><td>Borde dorado y destinos válidos resaltados.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Arrastrar y soltar</td><td>El grupo se mueve solo a destinos válidos; los inválidos no aceptan el <em>drop</em>.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Doble clic a fundación</td><td>La carta sube si es la siguiente del palo.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Pistas</td><td>Resalta carta y destino; avisa cuando no hay movimientos.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Deshacer y rehacer</td><td>El estado, el puntaje y los contadores vuelven al punto anterior.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Rendición</td><td>Marca derrota, muestra el modal y permite deshacer al cerrarlo.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ajustes</td><td>Se guardan y se aplican a la siguiente partida.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ranking</td><td>Guarda, ordena, muestra y borra con confirmación.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Inspector</td><td>Refleja el estado real de las estructuras.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Teclado</td><td><code>D</code>, <code>U</code>, <code>Y</code>, <code>P</code>, <code>I</code>, <code>Esc</code> y <code>Enter</code> funcionan.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Móvil</td><td>Sin desbordamiento horizontal; el tablero se desplaza dentro de su contenedor.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Consola</td><td>Sin errores ni promesas rechazadas durante los recorridos.</td><td><span class="check">✓</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Capturas de la interfaz</h3>
+    <div class="figure-row">
+      <figure class="figure">
+        <img src="img/03-seleccion.png" alt="Selección de una carta con el destino válido resaltado">
+        <figcaption class="figure__caption"><strong>Figura 3.</strong> Selección y destino válido.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/07-ranking.png" alt="Ranking con tres puntajes de ejemplo">
+        <figcaption class="figure__caption"><strong>Figura 4.</strong> Ranking con medallas y datos de la partida.</figcaption>
+      </figure>
+    </div>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Archivos de evidencia</p>
+      <ul>
+        <li><code>docs/img/10-pruebas.png</code>: captura completa de las 40 pruebas.</li>
+        <li><code>docs/img/10-pruebas-resumen.png</code>: resumen 40/40.</li>
+        <li><code>docs/img/01-menu.png</code> a <code>09-movil.png</code>: capturas de la interfaz.</li>
+        <li><code>tests/structures.test.js</code> y <code>tests/game.test.js</code>: código de las pruebas.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

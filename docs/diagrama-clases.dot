@@ -1,0 +1,226 @@
+/*
+ * Diagrama de clases del proyecto Klondike.
+ * Se genera con:  dot -Tsvg diagrama-clases.dot -o diagrama-clases.svg
+ * y una versión PNG para los manuales:
+ *                 dot -Tpng -Gdpi=170 diagrama-clases.dot -o diagrama-clases.png
+ */
+digraph Klondike {
+  graph [
+    rankdir=TB,
+    newrank=true,
+    fontname="Helvetica",
+    fontsize=20,
+    labelloc="t",
+    label=<<B>Klondike — diagrama de clases</B><BR/><FONT POINT-SIZE="11">Las flechas discontinuas indican dependencia o uso entre clases.</FONT>>,
+    nodesep=0.35,
+    ranksep=0.55,
+    splines=true,
+    pad=0.3,
+    bgcolor="white"
+  ];
+
+  node [
+    shape=plaintext,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+  edge [
+    fontname="Helvetica",
+    fontsize=9,
+    color="#5f6b61",
+    fontcolor="#465047",
+    arrowsize=0.7
+  ];
+
+  /* ------------------------------------------------ Estructuras propias */
+  subgraph cluster_structures {
+    label=<<B>Estructuras de datos propias</B>  <FONT POINT-SIZE="9">(nodos y referencias, sin colecciones del lenguaje)</FONT>>;
+    fontsize=13;
+    fontcolor="#1b5e20";
+    style="rounded,filled";
+    fillcolor="#eef6ee";
+    color="#8fbf93";
+    margin=12;
+    { rank=same; Stack; Queue; CircularList; DoublyLinkedList; BST; }
+
+    Stack [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#2e7d32"><FONT COLOR="white"><B>Stack&lt;T&gt;</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- top: StackNode<br/>- size: number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ push(v)<br/>+ pop()<br/>+ peek()<br/>+ isEmpty()<br/>+ size()<br/>+ clear()<br/>+ toArray()</FONT></TD></TR>
+      </TABLE>>];
+
+    Queue [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#2e7d32"><FONT COLOR="white"><B>Queue&lt;T&gt;</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- head: QueueNode<br/>- tail: QueueNode<br/>- size: number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ enqueue(v)<br/>+ dequeue()<br/>+ front()<br/>+ isEmpty()<br/>+ size()<br/>+ clear()<br/>+ toArray()</FONT></TD></TR>
+      </TABLE>>];
+
+    CircularList [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#2e7d32"><FONT COLOR="white"><B>CircularList&lt;T&gt;</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- tail: CircularNode<br/>- cursor: CircularNode<br/>- size: number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ insertAtStart(v)<br/>+ insertAtEnd(v)<br/>+ insertAt(i, v)<br/>+ removeAt(i)<br/>+ remove(v)<br/>+ search(v)<br/>+ advance()<br/>+ current()<br/>+ traverse(cb)<br/>+ toArray()</FONT></TD></TR>
+      </TABLE>>];
+
+    DoublyLinkedList [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#2e7d32"><FONT COLOR="white"><B>DoublyLinkedList&lt;T&gt;</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- head: DoublyNode<br/>- tail: DoublyNode<br/>- size: number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ insertAtStart(v)<br/>+ insertAtEnd(v)<br/>+ insertAt(i, v)<br/>+ removeAt(i)<br/>+ remove(v)<br/>+ search(v)<br/>+ traverseForward(cb)<br/>+ traverseBackward(cb)<br/>+ splitFrom(i)<br/>+ toArray()</FONT></TD></TR>
+      </TABLE>>];
+
+    BST [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#2e7d32"><FONT COLOR="white"><B>BST&lt;T&gt;</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- root: BSTNode<br/>- size: number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ insert(key, v)<br/>+ search(key)<br/>+ delete(key)<br/>+ minEntry() / maxEntry()<br/>+ inOrder(cb)<br/>+ preOrder(cb)<br/>+ postOrder(cb)<br/>+ height()<br/>+ size()</FONT></TD></TR>
+      </TABLE>>];
+  }
+
+  /* ------------------------------------------------ Lógica del juego */
+  subgraph cluster_game {
+    label=<<B>Lógica del juego</B>  <FONT POINT-SIZE="9">(independiente del DOM)</FONT>>;
+    fontsize=13;
+    fontcolor="#8a5a12";
+    style="rounded,filled";
+    fillcolor="#fdf6e7";
+    color="#d6b46a";
+    margin=12;
+    { rank=same; Card; DeckFactory; Rules; Scoring; Snapshot; KlondikeGame; Leaderboard; }
+
+    Card [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>Card</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- suit: Suit<br/>- rank: Rank<br/>+ faceUp: boolean<br/>+ id: string<br/>+ color / label / value</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ toString()<br/>+ toJSON()</FONT></TD></TR>
+      </TABLE>>];
+
+    DeckFactory [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>DeckFactory</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ createOrderedDeck()<br/>+ createShuffledDeck(rng)<br/>+ createCardRegistry()</FONT></TD></TR>
+      </TABLE>>];
+
+    Rules [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>Rules</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ canPlaceOnTableau(card, top)<br/>+ canPlaceOnFoundation(card, top)<br/>+ isValidSequence(cards)<br/>+ getFoundationIndex(suit)</FONT></TD></TR>
+      </TABLE>>];
+
+    Scoring [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>Scoring</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ SCORE_VALUES<br/>+ applyScore(current, delta)</FONT></TD></TR>
+      </TABLE>>];
+
+    Snapshot [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>Snapshot</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ SNAPSHOT_VERSION<br/>+ cloneSnapshot(s)<br/>+ isSnapshotLike(s)</FONT></TD></TR>
+      </TABLE>>];
+
+    KlondikeGame [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#8a5a12"><FONT COLOR="white"><B>KlondikeGame</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- stock: Queue&lt;Card&gt;<br/>- waste: Stack&lt;Card&gt;<br/>- foundations: Stack&lt;Card&gt;[4]<br/>- tableau: DoublyLinkedList&lt;Card&gt;[7]<br/>- passes: CircularList&lt;number&gt;<br/>- undoStack / redoStack: Stack&lt;Snapshot&gt;<br/>- score, moves, status, seed</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ newGame(options) / loadSnapshot(s)<br/>+ getSnapshot()<br/>+ drawOrRecycle() / draw() / recycle()<br/>+ moveToFoundation(source, cardId)<br/>+ moveTableauToTableau(from, cardId, to)<br/>+ moveWasteToTableau(to)<br/>+ moveFoundationToTableau(from, to)<br/>+ undo() / redo() / surrender()<br/>+ getHint() / autoCompleteStep()<br/>+ getDebugInfo()</FONT></TD></TR>
+      </TABLE>>];
+
+    Leaderboard [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#b7791f"><FONT COLOR="white"><B>Leaderboard</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- tree: BST&lt;Entry&gt;<br/>- storage / key / maxEntries</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ load() / save()<br/>+ add(entry)<br/>+ qualifies(score)<br/>+ remove(score) / search(score)<br/>+ top(n) / clear()<br/>+ getDebugInfo()</FONT></TD></TR>
+      </TABLE>>];
+  }
+
+  /* ------------------------------------------------ Interfaz */
+  subgraph cluster_ui {
+    label=<<B>Interfaz (DOM y CSS)</B>  <FONT POINT-SIZE="9">(sin frameworks)</FONT>>;
+    fontsize=13;
+    fontcolor="#1d4e89";
+    style="rounded,filled";
+    fillcolor="#edf3fb";
+    color="#8aadd6";
+    margin=12;
+    { rank=same; App; MenuView; GameView; LeaderboardView; ModalHost; StructureInspector; DomUtils; }
+
+    App [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>App</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- settings: Settings<br/>- leaderboard: Leaderboard<br/>- game: KlondikeGame<br/>- gameView: GameView<br/>- modal: ModalHost</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ constructor(root)<br/>- #showMenu()<br/>- #startGame()<br/>- #showLeaderboard()<br/>- #showSettings()<br/>- #handleStatus(status)</FONT></TD></TR>
+      </TABLE>>];
+
+    MenuView [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>MenuView</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ renderMenu(options)<br/>+ buildRulesContent()<br/>+ buildAboutContent()<br/>+ describeMode(settings)</FONT></TD></TR>
+      </TABLE>>];
+
+    GameView [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>GameView</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- game: KlondikeGame<br/>- selection / hint<br/>- refs: HTMLElement</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ mount(container)<br/>+ refresh()<br/>+ destroy()<br/>- #renderBoard()<br/>- #onBoardClick() / #onDrop()</FONT></TD></TR>
+      </TABLE>>];
+
+    LeaderboardView [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>LeaderboardView</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ renderLeaderboard(options)</FONT></TD></TR>
+      </TABLE>>];
+
+    ModalHost [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>ModalHost</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">- backdrop / previousFocus<br/>+ open(options)<br/>+ close()<br/>+ isOpen</FONT></TD></TR>
+      </TABLE>>];
+
+    StructureInspector [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>StructureInspector</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ openStructuresModal(modal,<br/>&nbsp;&nbsp;{ game, leaderboard })</FONT></TD></TR>
+      </TABLE>>];
+
+    DomUtils [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD BGCOLOR="#1d4e89"><FONT COLOR="white"><B>utils/dom.js</B></FONT></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">+ h(tag, props, ...children)<br/>+ clear(node)<br/>+ formatTime(seconds)<br/>+ formatDate(iso)</FONT></TD></TR>
+      </TABLE>>];
+  }
+
+  /* ------------------------------------------------ Orden de las capas */
+  edge [style=invis];
+  App -> KlondikeGame;
+  KlondikeGame -> Stack;
+
+  /* ------------------------------------------------ Relaciones */
+  edge [style=dashed, arrowhead=vee];
+
+  KlondikeGame -> Stack [label=" descarte, fundaciones,\n deshacer/rehacer"];
+  KlondikeGame -> Queue [label=" mazo"];
+  KlondikeGame -> DoublyLinkedList [label=" 7 columnas"];
+  KlondikeGame -> CircularList [label=" pases"];
+  KlondikeGame -> Card;
+  KlondikeGame -> DeckFactory;
+  KlondikeGame -> Rules;
+  KlondikeGame -> Scoring;
+  KlondikeGame -> Snapshot;
+  DeckFactory -> Card;
+  Leaderboard -> BST [label=" clave = puntaje"];
+
+  App -> KlondikeGame;
+  App -> Leaderboard;
+  App -> MenuView;
+  App -> GameView;
+  App -> LeaderboardView;
+  App -> ModalHost;
+  App -> StructureInspector;
+  GameView -> KlondikeGame;
+  StructureInspector -> KlondikeGame;
+  StructureInspector -> Leaderboard;
+
+}

@@ -1,0 +1,173 @@
+/* ============================================================
+   Cartas: cara, dorso, selección y pistas
+   ============================================================ */
+
+.card {
+  position: relative;
+  flex: none;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius);
+  background: var(--cream);
+  color: var(--ink);
+  border: 1px solid rgba(20, 20, 15, 0.28);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.32),
+    0 7px 16px rgba(0, 0, 0, 0.12);
+  user-select: none;
+  -webkit-user-select: none;
+  transition: box-shadow 0.14s ease, transform 0.14s ease, outline-color 0.14s ease;
+}
+
+.card--up {
+  background:
+    radial-gradient(circle at 50% 30%, #fffdf8 0%, #f7f0e0 62%, #ece2cd 100%);
+}
+
+.card--red {
+  color: var(--red);
+}
+
+.card--black {
+  color: var(--black);
+}
+
+.card__face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.card__corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.02em;
+  font-size: clamp(10px, calc(var(--card-w) * 0.2), 19px);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+
+.card__corner--tl {
+  top: 5%;
+  left: 6.5%;
+}
+
+.card__corner--br {
+  right: 6.5%;
+  bottom: 5%;
+  transform: rotate(180deg);
+}
+
+.card__rank {
+  font-family: var(--sans);
+}
+
+.card__suit {
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+.card__pip {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--card-w) * 0.5);
+  line-height: 1;
+  opacity: 0.9;
+  transform: translateY(4%);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ Dorso */
+
+.card--back {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.18), transparent 58%),
+    repeating-linear-gradient(45deg, #153a5b 0 7px, #1d4a73 7px 14px);
+  border: 2px solid #e7deca;
+  box-shadow:
+    inset 0 0 0 3px #112d45,
+    inset 0 0 0 5px rgba(246, 217, 153, 0.2),
+    0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.card__back-pattern {
+  position: absolute;
+  inset: 7%;
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--radius) - 4px);
+  border: 1px solid rgba(246, 217, 153, 0.34);
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0 4px, transparent 4px 9px);
+  color: rgba(246, 217, 153, 0.42);
+  font-size: calc(var(--card-w) * 0.3);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.card__back-pattern::after {
+  content: '✦';
+}
+
+/* ------------------------------------------------------------ Estados */
+
+.card--selected {
+  z-index: 20 !important;
+  outline: 3px solid var(--gold);
+  outline-offset: -2px;
+  box-shadow:
+    0 0 0 4px rgba(228, 179, 88, 0.32),
+    0 14px 26px rgba(0, 0, 0, 0.38);
+  transform: translateY(-2px);
+}
+
+.card--hint {
+  z-index: 19 !important;
+  outline: 3px solid #8df3bf;
+  outline-offset: -2px;
+  animation: card-hint 1.1s ease-in-out infinite alternate;
+}
+
+.card[draggable='true'] {
+  cursor: grab;
+}
+
+.card[draggable='true']:active {
+  cursor: grabbing;
+}
+
+.card--back {
+  cursor: default;
+}
+
+@keyframes card-hint {
+  from {
+    box-shadow: 0 0 0 3px rgba(141, 243, 191, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  to {
+    box-shadow: 0 0 14px 4px rgba(141, 243, 191, 0.6), 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (max-width: 560px) {
+  .card__pip {
+    transform: translateY(2%);
+  }
+
+  .card__corner--tl {
+    top: 4%;
+    left: 5%;
+  }
+
+  .card__corner--br {
+    right: 5%;
+    bottom: 4%;
+  }
+}

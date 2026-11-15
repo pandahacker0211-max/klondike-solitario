@@ -1,0 +1,564 @@
+/* ============================================================
+   Estilos comunes de los manuales (pantalla e impresión)
+   ============================================================ */
+
+:root {
+  --ink: #1f2a24;
+  --muted: #5b665e;
+  --green: #1b5e20;
+  --green-soft: #eef6ee;
+  --gold: #8a5a12;
+  --gold-soft: #fdf6e7;
+  --blue: #1d4e89;
+  --blue-soft: #edf3fb;
+  --red: #9b2c23;
+  --line: #d8ded9;
+  --paper: #ffffff;
+  --serif: Georgia, 'Times New Roman', serif;
+  --sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #e8ece8;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 10.6pt;
+  line-height: 1.55;
+  color: var(--ink);
+  background: #e8ece8;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sheet {
+  width: min(190mm, 100%);
+  margin: 0 auto;
+  padding: 14mm 10mm;
+  background: var(--paper);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ------------------------------------------------------------ Portada */
+
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 255mm;
+  padding: 2mm 0;
+}
+
+.cover__band {
+  padding: 16mm 14mm;
+  border-radius: 10px;
+  color: #fff;
+  background:
+    radial-gradient(420px 220px at 80% 0%, rgba(246, 217, 153, 0.25), transparent 65%),
+    linear-gradient(150deg, #0c3b2a 0%, #145c40 60%, #0a3527 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.cover__kicker {
+  margin: 0 0 2mm;
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f6d999;
+}
+
+.cover__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 34pt;
+  line-height: 1;
+  color: #fffaf0;
+}
+
+.cover__subtitle {
+  margin: 3mm 0 0;
+  font-size: 14pt;
+  color: #e9f2ea;
+}
+
+.cover__suits {
+  margin: 6mm 0 0;
+  font-size: 16pt;
+  letter-spacing: 0.35em;
+  color: #f6d999;
+}
+
+.cover__meta {
+  margin: 12mm 0 0;
+  display: grid;
+  gap: 1.5mm;
+  font-size: 10.5pt;
+  color: #dbe8de;
+}
+
+.cover__meta strong {
+  color: #fff;
+}
+
+.cover__bottom {
+  margin-top: 14mm;
+  padding-top: 6mm;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 3mm;
+  font-size: 9.5pt;
+  color: #cfdfd4;
+}
+
+.cover__note {
+  margin: 8mm 2mm 0;
+  color: var(--muted);
+  font-size: 9.5pt;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------ Tipografía */
+
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  color: #21372a;
+  line-height: 1.2;
+}
+
+h1 {
+  margin: 0 0 3mm;
+  font-size: 24pt;
+}
+
+h2 {
+  margin: 0 0 4mm;
+  padding-bottom: 2mm;
+  font-size: 17pt;
+  border-bottom: 2px solid var(--green);
+}
+
+h3 {
+  margin: 7mm 0 2mm;
+  font-size: 12.5pt;
+  color: var(--green);
+}
+
+h4 {
+  margin: 5mm 0 1.5mm;
+  font-size: 10.8pt;
+  color: var(--gold);
+}
+
+p {
+  margin: 0 0 3.2mm;
+}
+
+ul, ol {
+  margin: 0 0 3.5mm;
+  padding-left: 6mm;
+}
+
+li {
+  margin-bottom: 1.4mm;
+}
+
+li > ul,
+li > ol {
+  margin-top: 1.4mm;
+  margin-bottom: 1.5mm;
+}
+
+strong {
+  color: #17231c;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px solid #b9cbe0;
+}
+
+.small {
+  font-size: 9.2pt;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.center {
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ Índice */
+
+.toc {
+  margin: 4mm 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: toc;
+}
+
+.toc li {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  padding: 1.3mm 0;
+  border-bottom: 1px dotted #c7d0c9;
+  font-size: 10.3pt;
+}
+
+.toc li::before {
+  counter-increment: toc;
+  content: counter(toc, decimal-leading-zero);
+  min-width: 9mm;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 9pt;
+}
+
+.toc li span {
+  flex: 1;
+}
+
+.toc li small {
+  color: var(--muted);
+  font-size: 8.8pt;
+}
+
+/* ------------------------------------------------------------ Figuras */
+
+.figure {
+  margin: 4mm 0 5mm;
+  break-inside: avoid;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #c3cdc5;
+  border-radius: 4px;
+  background: #0a3527;
+}
+
+.figure__caption {
+  margin: 2mm 0 0;
+  font-size: 8.8pt;
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: center;
+}
+
+.figure__caption strong {
+  color: #3c4a40;
+}
+
+.figure-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5mm;
+  align-items: start;
+}
+
+.figure--diagram img {
+  border: none;
+  background: #fff;
+}
+
+/* ------------------------------------------------------------ Tablas */
+
+table {
+  width: 100%;
+  margin: 3mm 0 5mm;
+  border-collapse: collapse;
+  font-size: 9.3pt;
+  line-height: 1.4;
+}
+
+caption {
+  caption-side: top;
+  margin-bottom: 1.5mm;
+  font-size: 8.7pt;
+  font-weight: 650;
+  color: var(--muted);
+  text-align: left;
+}
+
+th {
+  padding: 2mm 2.4mm;
+  text-align: left;
+  font-size: 8.3pt;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #28563b;
+  border: 1px solid #28563b;
+}
+
+td {
+  padding: 1.9mm 2.4mm;
+  border: 1px solid var(--line);
+  vertical-align: top;
+}
+
+tbody tr:nth-child(even) {
+  background: #f5f8f5;
+}
+
+.table--compact {
+  font-size: 8.8pt;
+}
+
+.table--compact td,
+.table--compact th {
+  padding: 1.4mm 2mm;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+td.code,
+.code {
+  font-family: var(--mono);
+  font-size: 8.6pt;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.4mm 2mm;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  border: 1px solid #e6d2a7;
+  color: #7a5a12;
+  font-size: 8.4pt;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tag--green {
+  background: var(--green-soft);
+  border-color: #b7d4b9;
+  color: #1b5e20;
+}
+
+.tag--blue {
+  background: var(--blue-soft);
+  border-color: #bdd0e6;
+  color: var(--blue);
+}
+
+/* ------------------------------------------------------------ Avisos */
+
+.callout {
+  margin: 4mm 0;
+  padding: 3.5mm 4.5mm;
+  border-left: 4px solid var(--gold);
+  border-radius: 4px;
+  background: #fbf4e3;
+  break-inside: avoid;
+}
+
+.callout--info {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.callout--ok {
+  border-color: #2e7d32;
+  background: #eef6ee;
+}
+
+.callout__title {
+  margin: 0 0 1.2mm;
+  font-size: 9.5pt;
+  font-weight: 750;
+  color: #4c3a12;
+}
+
+.callout--info .callout__title {
+  color: #1d4e89;
+}
+
+.callout--ok .callout__title {
+  color: #1b5e20;
+}
+
+.callout p:last-child,
+.callout ul:last-child {
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------ Código */
+
+code {
+  padding: 0.2mm 1.2mm;
+  border-radius: 2px;
+  background: #f0f3f0;
+  border: 1px solid #e0e6e1;
+  font-family: var(--mono);
+  font-size: 0.88em;
+  color: #2c3b30;
+}
+
+pre {
+  margin: 3mm 0 4mm;
+  padding: 3.5mm 4.5mm;
+  overflow-x: auto;
+  border-radius: 4px;
+  border: 1px solid #dce4dd;
+  background: #f7faf7;
+  font-family: var(--mono);
+  font-size: 8.7pt;
+  line-height: 1.5;
+  color: #26342b;
+  break-inside: avoid;
+}
+
+pre code {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: inherit;
+}
+
+.tree {
+  margin: 3mm 0 4mm;
+  padding: 3.5mm 4.5mm;
+  border-radius: 4px;
+  border: 1px solid #dce4dd;
+  background: #f7faf7;
+  font-family: var(--mono);
+  font-size: 8.5pt;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ------------------------------------------------------------ Varios */
+
+.page-break {
+  break-before: page;
+}
+
+.avoid-break {
+  break-inside: avoid;
+}
+
+.lead {
+  font-size: 11.6pt;
+  line-height: 1.6;
+  color: #34443a;
+}
+
+.quote {
+  margin: 4mm 0;
+  padding: 3mm 4mm;
+  border-left: 3px solid #c7d0c9;
+  color: var(--muted);
+  font-style: italic;
+}
+
+hr {
+  margin: 6mm 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+  margin: 3mm 0 4mm;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 34mm 1fr;
+  gap: 1.4mm 3mm;
+  margin: 3mm 0 4mm;
+  font-size: 9.8pt;
+}
+
+.kv dt {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.kv dd {
+  margin: 0;
+}
+
+.check {
+  color: #2e7d32;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------ Impresión */
+
+@page {
+  size: A4;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  .sheet {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .cover {
+    min-height: 245mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  a {
+    color: inherit;
+    border-bottom: none;
+  }
+
+  h2 {
+    break-after: avoid;
+  }
+
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  .figure,
+  .callout,
+  .avoid-break,
+  pre {
+    break-inside: avoid;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}

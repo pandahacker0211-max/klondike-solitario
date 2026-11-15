@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de usuario — Klondike</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<main class="sheet">
+
+  <!-- ============================================================ PORTADA -->
+  <section class="cover">
+    <div class="cover__band">
+      <p class="cover__kicker">Proyecto final · Estructuras de Datos</p>
+      <h1 class="cover__title">Klondike</h1>
+      <p class="cover__subtitle">Manual de usuario</p>
+      <p class="cover__suits" aria-hidden="true">♠ ♥ ♦ ♣</p>
+      <div class="cover__meta">
+        <span><strong>Juego:</strong> Solitario Klondike para navegador</span>
+        <span><strong>Lenguaje:</strong> JavaScript, HTML y CSS (sin frameworks)</span>
+        <span><strong>Modalidad:</strong> Robo de 1 o 3 cartas · 3, 5 o pases ilimitados</span>
+      </div>
+      <div class="cover__bottom">
+        <span>Miguel Angel Vergara Morales</span>
+        <span>Danney Yuliana Medina Males</span>
+      </div>
+    </div>
+    <p class="cover__note">
+      Este manual explica cómo abrir el juego, cuáles son las reglas del Klondike,
+      cómo se utilizan los controles y qué debe hacer el jugador para ganar o perder.
+      Las capturas corresponden a la versión entregada en noviembre de 2026.
+    </p>
+  </section>
+
+  <!-- ============================================================ ÍNDICE -->
+  <section class="page-break">
+    <h2>Contenido</h2>
+    <ol class="toc">
+      <li><span>¿Qué es este juego?</span><small>Objetivo y descripción general</small></li>
+      <li><span>Antes de empezar</span><small>Requisitos y forma de abrir el juego</small></li>
+      <li><span>Pantalla principal</span><small>Menú y opciones disponibles</small></li>
+      <li><span>Reglas del Klondike</span><small>Preparación, movimientos y pases</small></li>
+      <li><span>Controles</span><small>Ratón, teclado y arrastrar y soltar</small></li>
+      <li><span>Cómo jugar una partida</span><small>Paso a paso con capturas</small></li>
+      <li><span>Ajustes</span><small>Nombre, cartas por robo y pases</small></li>
+      <li><span>Herramientas de ayuda</span><small>Pistas, autocompletar, deshacer e inspector</small></li>
+      <li><span>Cómo se gana y cómo se pierde</span><small>Condiciones de fin de partida</small></li>
+      <li><span>Ranking de puntajes</span><small>Mejores resultados y borrado</small></li>
+      <li><span>Preguntas frecuentes</span><small>Problemas habituales y soluciones</small></li>
+      <li><span>Créditos</span><small>Autores y datos del proyecto</small></li>
+    </ol>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Convenciones de este manual</p>
+      <p>
+        Los nombres de botones y ventanas aparecen <strong>en negrita</strong>. Las teclas se muestran
+        como <code>U</code>, <code>D</code> o <code>Esc</code>. Las capturas se tomaron con la modalidad
+        de robo de 1 carta y 3 pases, salvo que se indique otra cosa.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 1 -->
+  <section class="page-break">
+    <h2>1. ¿Qué es este juego?</h2>
+    <p class="lead">
+      Klondike es la versión clásica del solitario que se juega con una baraja francesa de 52 cartas.
+      El objetivo es trasladar todas las cartas a cuatro fundaciones, una por palo, en orden ascendente
+      desde el As hasta el Rey.
+    </p>
+    <p>
+      La partida comienza con siete columnas en el tablero y un mazo de robo. El jugador descubre cartas,
+      forma secuencias descendentes alternando colores y aprovecha el descarte para avanzar. No hay
+      oponentes ni turnos: el único límite es la cantidad de pases configurada para el mazo.
+    </p>
+
+    <h3>Características de esta versión</h3>
+    <ul>
+      <li>Interfaz gráfica completa en el navegador, con cartas, animaciones suaves y diseño adaptable a pantallas pequeñas.</li>
+      <li>Dos modalidades de robo: <strong>1 carta</strong> (clásica) o <strong>3 cartas</strong>.</li>
+      <li>Tres configuraciones de pases: <strong>3</strong>, <strong>5</strong> o <strong>ilimitados</strong>.</li>
+      <li>Deshacer y rehacer cualquier cantidad de movimientos.</li>
+      <li>Pistas de movimiento y autocompletado cuando el tablero está descubierto.</li>
+      <li>Ranking local con los 10 mejores puntajes.</li>
+      <li>Inspector de estructuras para observar en vivo las pilas, colas, listas y el árbol del ranking.</li>
+    </ul>
+
+    <div class="callout">
+      <p class="callout__title">Un detalle importante</p>
+      <p>
+        El juego guarda los ajustes y el ranking en el almacenamiento local del navegador. No se envía
+        información a internet ni se necesita crear una cuenta.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section class="page-break">
+    <h2>2. Antes de empezar</h2>
+
+    <h3>Requisitos</h3>
+    <table>
+      <thead>
+        <tr><th>Elemento</th><th>Requisito</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Navegador</td><td>Firefox, Chrome, Edge u otro navegador moderno con soporte para módulos ES y <code>localStorage</code>.</td></tr>
+        <tr><td>Sistema operativo</td><td>Windows, macOS o Linux. El juego no depende del sistema.</td></tr>
+        <tr><td>Instalación</td><td>Ninguna. No hay que compilar ni instalar dependencias.</td></tr>
+        <tr><td>Servidor local</td><td>Opcional, pero necesario si se ejecuta el código desde una carpeta. Se puede usar Python o la extensión Live Server de VS Code.</td></tr>
+        <tr><td>Pantalla</td><td>Se adapta desde teléfonos (aproximadamente 400 px de ancho) hasta monitores grandes.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Abrir el juego desde el repositorio</h3>
+    <p>
+      El proyecto usa módulos nativos de JavaScript. Por seguridad, los navegadores no cargan módulos
+      cuando el archivo se abre con doble clic (<code>file://</code>). Por eso debe servirse por HTTP.
+    </p>
+
+    <h4>Opción A: servidor con Python</h4>
+    <ol>
+      <li>Abrir una terminal en la carpeta del proyecto.</li>
+      <li>Ejecutar <code>python3 -m http.server 8000</code>.</li>
+      <li>Abrir <strong>http://localhost:8000</strong> en el navegador.</li>
+      <li>Para detener el servidor, presionar <code>Ctrl</code> + <code>C</code> en la terminal.</li>
+    </ol>
+
+    <h4>Opción B: Live Server en VS Code</h4>
+    <ol>
+      <li>Abrir la carpeta del proyecto en VS Code.</li>
+      <li>Hacer clic derecho sobre <code>index.html</code> y elegir <strong>Open with Live Server</strong>.</li>
+      <li>VS Code abrirá una dirección local, normalmente <strong>http://127.0.0.1:5500</strong>.</li>
+    </ol>
+
+    <h4>Opción C: GitHub Pages</h4>
+    <p>
+      Si el repositorio publica la rama <code>main</code> con GitHub Pages, el juego queda disponible en
+      la dirección que indique el repositorio. No se requiere instalar nada en el equipo.
+    </p>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Si aparece una página en blanco</p>
+      <p>
+        Verifica que estés abriendo el juego con <code>http://</code> y no con <code>file://</code>.
+        También revisa la consola del navegador (<code>F12</code>) para descartar errores de carga.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section class="page-break">
+    <h2>3. Pantalla principal</h2>
+    <p>
+      Al abrir el juego aparece el menú principal. Desde aquí se inicia una partida o se accede a las
+      demás secciones.
+    </p>
+
+    <figure class="figure">
+      <img src="img/01-menu.png" alt="Menú principal de Klondike con los botones Jugar, Ranking, Cómo jugar, Ajustes y Estructuras">
+      <figcaption class="figure__caption">
+        <strong>Figura 1.</strong> Menú principal. Abajo se muestran la modalidad activa, el nombre del
+        jugador y el mejor puntaje registrado.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead>
+        <tr><th>Opción</th><th>Para qué sirve</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Jugar</strong></td><td>Inicia una partida nueva con la modalidad y el nombre configurados.</td></tr>
+        <tr><td><strong>Ranking</strong></td><td>Muestra los 10 mejores puntajes guardados en este navegador.</td></tr>
+        <tr><td><strong>Cómo jugar</strong></td><td>Abre las reglas resumidas, la tabla de puntaje y los atajos de teclado.</td></tr>
+        <tr><td><strong>Ajustes</strong></td><td>Permite cambiar el nombre, las cartas por robo y la cantidad de pases.</td></tr>
+        <tr><td><strong>Estructuras</strong></td><td>Explica qué estructura de datos cumple cada función dentro del juego.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="small muted">
+      Los cambios de robo y pases se aplican a la próxima partida. El nombre se usa cuando un puntaje
+      entra al ranking.
+    </p>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section class="page-break">
+    <h2>4. Reglas del Klondike</h2>
+
+    <h3>4.1 Objetivo</h3>
+    <p>
+      Mover las 52 cartas a las cuatro fundaciones. Cada fundación se arma con un solo palo, en orden
+      ascendente: As, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q y K.
+    </p>
+
+    <h3>4.2 Preparación</h3>
+    <p>
+      El tablero tiene siete columnas con 1, 2, 3, 4, 5, 6 y 7 cartas respectivamente. Solo la carta
+      superior de cada columna queda boca arriba; las demás están ocultas. Las 24 cartas restantes
+      forman el mazo de robo.
+    </p>
+    <p>
+      A la izquierda del tablero están el mazo y el descarte. A la derecha, las cuatro fundaciones.
+      La Figura 2 muestra la distribución inicial.
+    </p>
+
+    <figure class="figure">
+      <img src="img/02-partida.png" alt="Tablero inicial con el mazo, el descarte vacío, cuatro fundaciones y siete columnas">
+      <figcaption class="figure__caption">
+        <strong>Figura 2.</strong> Tablero al iniciar una partida. La barra superior muestra puntaje,
+        movimientos, tiempo y pases.
+      </figcaption>
+    </figure>
+
+    <h3>4.3 Cómo mover las cartas</h3>
+    <table>
+      <thead>
+        <tr><th>Zona</th><th>Regla</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Mazo</strong></td>
+          <td>Al hacer clic se roban una o tres cartas, según los ajustes. Cuando se agota, un clic recicla el descarte y consume un pase.</td>
+        </tr>
+        <tr>
+          <td><strong>Descarte</strong></td>
+          <td>Solo la carta superior puede moverse. Puede ir a una fundación o a una columna del tablero.</td>
+        </tr>
+        <tr>
+          <td><strong>Columnas</strong></td>
+          <td>Se construyen de forma descendente y alternando colores: una carta roja sobre una negra, o una negra sobre una roja. Una columna vacía solo acepta un Rey.</td>
+        </tr>
+        <tr>
+          <td><strong>Grupos</strong></td>
+          <td>Se puede mover una secuencia completa de cartas boca arriba que ya esté ordenada de forma descendente y alternando colores.</td>
+        </tr>
+        <tr>
+          <td><strong>Fundaciones</strong></td>
+          <td>Reciben la carta siguiente del mismo palo, empezando por el As. La carta superior de una fundación puede devolverse a una columna del tablero.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.4 Voltear cartas</h3>
+    <p>
+      Cuando la carta superior de una columna se mueve, la siguiente carta oculta se voltea
+      automáticamente y suma puntos. Las cartas ocultas no se pueden seleccionar ni mover.
+    </p>
+
+    <h3>4.5 Pases</h3>
+    <p>
+      Cada vez que el mazo se agota y se recicla el descarte se consume un pase. La partida puede
+      configurarse con 3 pases (valor por defecto), 5 pases o pases ilimitados. El indicador
+      <strong>Pases</strong> muestra el pase actual y el límite; con pases ilimitados aparece el símbolo
+      <strong>∞</strong>.
+    </p>
+
+    <h3>4.6 Puntaje</h3>
+    <table>
+      <thead>
+        <tr><th>Acción</th><th class="num">Puntos</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mover una carta a una fundación</td><td class="num">+10</td></tr>
+        <tr><td>Voltear una carta del tablero</td><td class="num">+5</td></tr>
+        <tr><td>Devolver una carta de la fundación al tablero</td><td class="num">−15</td></tr>
+        <tr><td>Reciclar el descarte</td><td class="num">−20</td></tr>
+        <tr><td>Completar la partida</td><td class="num">+100</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">El puntaje nunca baja de cero.</p>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section class="page-break">
+    <h2>5. Controles</h2>
+    <p>
+      El juego se puede manejar con el ratón o con el teclado. Todas las acciones importantes tienen
+      un botón visible en la barra superior de la partida.
+    </p>
+
+    <h3>5.1 Ratón</h3>
+    <table>
+      <thead>
+        <tr><th>Acción</th><th>Resultado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Clic en el mazo</td><td>Roba una o tres cartas. Si el mazo está vacío, recicla el descarte.</td></tr>
+        <tr><td>Clic en una carta</td><td>La selecciona y resalta los destinos válidos con un borde dorado.</td></tr>
+        <tr><td>Clic en una columna o fundación</td><td>Mueve la selección al destino, si el movimiento es válido.</td></tr>
+        <tr><td>Clic en la misma carta</td><td>Cancela la selección.</td></tr>
+        <tr><td>Doble clic en el descarte o en la carta superior de una columna</td><td>Envía la carta directamente a su fundación si es posible.</td></tr>
+        <tr><td>Arrastrar y soltar</td><td>Mueve una carta o un grupo a otra columna o fundación. Los destinos válidos se iluminan al pasar por encima.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 Teclado</h3>
+    <table>
+      <thead>
+        <tr><th>Tecla</th><th>Acción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>D</code></td><td>Robar del mazo o reciclar el descarte.</td></tr>
+        <tr><td><code>U</code></td><td>Deshacer el último movimiento.</td></tr>
+        <tr><td><code>Y</code></td><td>Rehacer el movimiento deshecho.</td></tr>
+        <tr><td><code>P</code></td><td>Mostrar una pista de movimiento.</td></tr>
+        <tr><td><code>A</code></td><td>Autocompletar cuando todas las cartas del tablero estén boca arriba.</td></tr>
+        <tr><td><code>I</code></td><td>Abrir el inspector de estructuras.</td></tr>
+        <tr><td><code>Esc</code></td><td>Cancelar la selección actual.</td></tr>
+        <tr><td><code>Tab</code> y <code>Enter</code></td><td>Recorrer los elementos con foco y activar la pila seleccionada.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <p class="callout__title">Consejo</p>
+      <p>
+        Si no sabes qué mover, presiona <code>P</code>. La pista resalta la carta y el destino sugerido.
+        Si no hay pistas, el juego avisará que no quedan movimientos disponibles.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 6 -->
+  <section class="page-break">
+    <h2>6. Cómo jugar una partida</h2>
+
+    <h3>Paso 1. Iniciar la partida</h3>
+    <p>
+      En el menú principal, hacer clic en <strong>Jugar</strong>. El tablero se reparte al azar, pero la
+      semilla utilizada aparece al pie de la pantalla. La barra superior muestra puntaje, movimientos,
+      tiempo y pases.
+    </p>
+
+    <h3>Paso 2. Robar del mazo</h3>
+    <p>
+      Hacer clic sobre el mazo (o presionar <code>D</code>). En la modalidad de 1 carta se descubre una
+      carta por clic; en la modalidad de 3 se descubren tres. La carta superior del descarte queda
+      disponible para jugar.
+    </p>
+
+    <h3>Paso 3. Seleccionar una carta</h3>
+    <p>
+      Hacer clic sobre la carta superior del descarte o sobre una carta boca arriba del tablero. La carta
+      se marca con un borde dorado y los destinos válidos se resaltan. Si se seleccionó una secuencia
+      válida, se moverá el grupo completo.
+    </p>
+
+    <figure class="figure">
+      <img src="img/03-seleccion.png" alt="Carta del descarte seleccionada y destino válido resaltado">
+      <figcaption class="figure__caption">
+        <strong>Figura 3.</strong> El 9♠ del descarte está seleccionado. El juego resalta la fundación
+        de espadas como destino válido.
+      </figcaption>
+    </figure>
+
+    <h3>Paso 4. Elegir el destino</h3>
+    <p>
+      Hacer clic en la columna o fundación resaltada. Si el movimiento es válido, la carta se mueve y se
+      actualizan los contadores. Si no lo es, aparece un mensaje de advertencia y la selección se conserva
+      para intentar otro destino.
+    </p>
+
+    <h3>Paso 5. Descubrir y ordenar</h3>
+    <p>
+      Repetir el proceso: mover cartas a las fundaciones, formar secuencias descendentes en las columnas
+      y voltear las cartas ocultas. Cuando una columna quede vacía, solo se puede ocupar con un Rey.
+    </p>
+
+    <h3>Paso 6. Reciclar el mazo</h3>
+    <p>
+      Cuando el mazo se vacíe, hacer clic sobre él para reciclar el descarte. Cada reciclaje consume un
+      pase y reinicia el descarte en el orden inverso al que fue robado. El contador de pases indica
+      cuántos quedan.
+    </p>
+
+    <h3>Paso 7. Terminar la partida</h3>
+    <p>
+      La partida termina cuando las cuatro fundaciones están completas (victoria) o cuando no quedan
+      movimientos posibles, cartas en el mazo ni pases disponibles (derrota). También es posible
+      rendirse desde el botón <strong>Rendirse</strong>.
+    </p>
+
+    <div class="callout callout--ok">
+      <p class="callout__title">Autocompletar</p>
+      <p>
+        Cuando todas las cartas del tablero estén boca arriba, el botón <strong>Auto</strong> se habilita.
+        Al usarlo, el juego mueve automáticamente las cartas que ya pueden ir a las fundaciones hasta
+        completar la partida. Es la forma más rápida de cerrar una victoria.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 7 -->
+  <section class="page-break">
+    <h2>7. Ajustes</h2>
+    <p>
+      La ventana <strong>Ajustes</strong> se abre desde el menú principal. Los cambios se guardan en el
+      navegador y se conservan al cerrar y volver a abrir el juego.
+    </p>
+
+    <figure class="figure">
+      <img src="img/06-ajustes.png" alt="Ventana de ajustes con nombre, cartas por robo y pases del mazo">
+      <figcaption class="figure__caption">
+        <strong>Figura 4.</strong> Ajustes disponibles: nombre para el ranking, cartas por robo y pases
+        del mazo.
+      </figcaption>
+    </figure>
+
+    <table>
+      <thead>
+        <tr><th>Campo</th><th>Valores</th><th>Efecto</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Nombre para el ranking</strong></td>
+          <td>Texto de hasta 20 caracteres</td>
+          <td>Se usa al guardar un puntaje. Si se deja vacío, se registra como <em>Invitado</em>.</td>
+        </tr>
+        <tr>
+          <td><strong>Cartas por robo</strong></td>
+          <td>1 carta (clásico) · 3 cartas</td>
+          <td>Determina cuántas cartas se descubren en cada clic sobre el mazo.</td>
+        </tr>
+        <tr>
+          <td><strong>Pases del mazo</strong></td>
+          <td>3 pases · 5 pases · Ilimitados</td>
+          <td>Limita cuántas veces se puede reciclar el descarte.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Los cambios no alteran la partida en curso</p>
+      <p>
+        El robo y los pases se aplican a la próxima partida. Para jugar con la nueva modalidad, guarda
+        los ajustes y luego elige <strong>Jugar</strong> desde el menú.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 8 -->
+  <section class="page-break">
+    <h2>8. Herramientas de ayuda</h2>
+
+    <h3>8.1 Deshacer y rehacer</h3>
+    <p>
+      Los botones <strong>Deshacer</strong> y <strong>Rehacer</strong>, o las teclas <code>U</code> y
+      <code>Y</code>, permiten retroceder y repetir movimientos. Se puede deshacer incluso después de una
+      derrota: cierra la ventana de resultado y usa <strong>Deshacer</strong> para volver al movimiento
+      anterior. El historial no tiene un límite práctico para una partida normal.
+    </p>
+
+    <h3>8.2 Pistas</h3>
+    <p>
+      El botón <strong>Pista</strong> (o la tecla <code>P</code>) busca un movimiento útil y lo resalta.
+      La pista puede sugerir robar del mazo, reciclar el descarte, enviar una carta a una fundación o
+      mover una carta entre columnas.
+    </p>
+
+    <h3>8.3 Inspector de estructuras</h3>
+    <p>
+      El botón <strong>Estructuras</strong> (o la tecla <code>I</code>) abre un panel con el contenido
+      real de las estructuras en ese instante: el mazo, el descarte, las fundaciones, las siete columnas,
+      la lista circular de pases y el árbol del ranking. También muestra los recorridos del árbol y las
+      pilas de deshacer y rehacer.
+    </p>
+
+    <figure class="figure">
+      <img src="img/04-inspector.png" alt="Inspector de estructuras con la cola del mazo, la pila del descarte y las fundaciones">
+      <figcaption class="figure__caption">
+        <strong>Figura 5.</strong> Inspector de estructuras durante una partida. Cada bloque muestra el
+        tamaño, el tope o frente y los elementos en orden.
+      </figcaption>
+    </figure>
+
+    <figure class="figure">
+      <img src="img/04b-inspector-bst.png" alt="Inspector mostrando columnas, lista circular de pases y recorridos del árbol del ranking">
+      <figcaption class="figure__caption">
+        <strong>Figura 6.</strong> Parte inferior del inspector: columnas con su recorrido de ida y
+        vuelta, pases y recorridos inorden, preorden y posorden del árbol del ranking.
+      </figcaption>
+    </figure>
+
+    <p class="small muted">
+      El inspector es una herramienta de aprendizaje y de sustentación: permite comprobar que las
+      estructuras realmente almacenan el estado del juego.
+    </p>
+  </section>
+
+  <!-- ============================================================ 9 -->
+  <section class="page-break">
+    <h2>9. Cómo se gana y cómo se pierde</h2>
+
+    <h3>9.1 Victoria</h3>
+    <p>
+      La partida se gana cuando las 52 cartas están en las cuatro fundaciones, cada una completa de As a
+      Rey. Al ganar se suman 100 puntos y, si el puntaje entra al top 10, se guarda en el ranking con el
+      nombre configurado.
+    </p>
+
+    <h3>9.2 Derrota</h3>
+    <p>
+      La partida se pierde cuando no queda ningún movimiento posible, el mazo está vacío y no quedan
+      pases para reciclar el descarte. También se pierde si el jugador elige <strong>Rendirse</strong> y
+      confirma la acción.
+    </p>
+
+    <figure class="figure">
+      <img src="img/08-derrota.png" alt="Ventana de partida terminada con puntaje, tiempo, movimientos y modalidad">
+      <figcaption class="figure__caption">
+        <strong>Figura 7.</strong> Ventana de fin de partida. Desde aquí se puede jugar otra vez, ver el
+        ranking o volver al menú. Si fue una derrota, también se puede cerrar y deshacer.
+      </figcaption>
+    </figure>
+
+    <h3>9.3 Después del resultado</h3>
+    <table>
+      <thead>
+        <tr><th>Botón</th><th>Acción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Jugar otra vez</strong></td><td>Inicia una partida nueva con la misma modalidad y un reparto nuevo.</td></tr>
+        <tr><td><strong>Ver ranking</strong></td><td>Muestra la tabla de mejores puntajes.</td></tr>
+        <tr><td><strong>Menú</strong></td><td>Regresa a la pantalla principal.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <p class="callout__title">La ventana se puede cerrar</p>
+      <p>
+        El botón <strong>×</strong> cierra la ventana de resultado sin abandonar la partida. En una
+        derrota, esto permite usar <strong>Deshacer</strong> y continuar desde el movimiento anterior.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 10 -->
+  <section class="page-break">
+    <h2>10. Ranking de puntajes</h2>
+    <p>
+      El ranking guarda hasta 10 puntajes por navegador. Se ordena de mayor a menor y muestra el nombre,
+      el puntaje, la modalidad, el tiempo, la cantidad de movimientos y la fecha de la partida.
+    </p>
+
+    <figure class="figure">
+      <img src="img/07-ranking.png" alt="Tabla de ranking con tres puntajes de ejemplo y medallas para los tres primeros">
+      <figcaption class="figure__caption">
+        <strong>Figura 8.</strong> Ranking con los tres primeros lugares resaltados. La tabla se puede
+        desplazar horizontalmente en pantallas pequeñas.
+      </figcaption>
+    </figure>
+
+    <h3>¿Cuándo se guarda un puntaje?</h3>
+    <ul>
+      <li>Solo se guardan partidas ganadas.</li>
+      <li>Si el top 10 está lleno, el nuevo puntaje debe ser mayor o igual que el último para entrar.</li>
+      <li>Si el puntaje no alcanza, la ventana de victoria lo informa y el ranking no cambia.</li>
+      <li>El puntaje se asocia al nombre configurado en <strong>Ajustes</strong>.</li>
+    </ul>
+
+    <h3>Borrar el ranking</h3>
+    <p>
+      En la pantalla del ranking, el botón <strong>Borrar ranking</strong> pide confirmación y elimina
+      todos los puntajes guardados en este navegador. La acción no se puede deshacer.
+    </p>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Los puntajes son locales</p>
+      <p>
+        El ranking se guarda en el almacenamiento del navegador. Si se borran los datos del sitio, se usa
+        el modo privado o se cambia de navegador, la tabla aparecerá vacía. No hay sincronización entre
+        dispositivos.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 11 -->
+  <section class="page-break">
+    <h2>11. Preguntas frecuentes</h2>
+
+    <h3>El juego no carga y la página queda en blanco</h3>
+    <p>
+      Asegúrate de abrirlo con un servidor HTTP (<code>http://localhost:8000</code>) y no con doble clic
+      sobre <code>index.html</code>. Los módulos de JavaScript requieren un servidor.
+    </p>
+
+    <h3>No puedo mover una carta a una columna</h3>
+    <p>
+      Revisa que la carta sea exactamente una unidad menor y de color contrario a la carta superior de la
+      columna. Si la columna está vacía, solo se admite un Rey. Si intentas mover un grupo, toda la
+      secuencia debe estar ordenada y alternando colores.
+    </p>
+
+    <h3>No puedo reciclar el descarte</h3>
+    <p>
+      Puede que hayas agotado los pases configurados. El indicador <strong>Pases</strong> muestra el
+      consumo actual. Si la partida tiene 3 pases, solo se puede reciclar mientras el contador no llegue
+      al límite. Para futuras partidas, cambia la modalidad en <strong>Ajustes</strong>.
+    </p>
+
+    <h3>El botón Auto está deshabilitado</h3>
+    <p>
+      El autocompletado solo se habilita cuando todas las cartas del tablero están boca arriba. Sigue
+      jugando hasta descubrir las cartas ocultas.
+    </p>
+
+    <h3>Perdí mi puntaje o mi nombre</h3>
+    <p>
+      El juego guarda la información en el navegador. Si borraste los datos del sitio o cambiaste de
+      navegador, esa información se perdió. Vuelve a escribir el nombre en <strong>Ajustes</strong>.
+    </p>
+
+    <h3>La pantalla se ve pequeña o desbordada</h3>
+    <p>
+      El tablero se adapta al ancho disponible. En teléfonos, gira el dispositivo a horizontal para ver
+      las columnas con más comodidad. Si el problema continúa, actualiza el navegador.
+    </p>
+
+    <h3>¿Puedo jugar sin conexión a internet?</h3>
+    <p>
+      Sí, una vez que el juego está abierto o publicado localmente. No se descargan recursos externos;
+      todos los estilos e imágenes forman parte del proyecto.
+    </p>
+  </section>
+
+  <!-- ============================================================ 12 -->
+  <section class="page-break">
+    <h2>12. Créditos</h2>
+    <dl class="kv">
+      <dt>Proyecto</dt><dd>Klondike — Solitario con estructuras de datos propias</dd>
+      <dt>Curso</dt><dd>Estructuras de Datos</dd>
+      <dt>Integrantes</dt><dd>Miguel Angel Vergara Morales · Danney Yuliana Medina Males</dd>
+      <dt>Lenguaje</dt><dd>JavaScript (ES2022), HTML5 y CSS3</dd>
+      <dt>Dependencias</dt><dd>Ninguna. No se usan frameworks ni librerías externas.</dd>
+      <dt>Estructuras</dt><dd>Pila, cola, lista circular, lista doblemente enlazada y árbol binario de búsqueda, implementadas desde cero.</dd>
+      <dt>Entrega</dt><dd>Noviembre de 2026</dd>
+    </dl>
+
+    <p class="small muted">
+      Este manual y el manual técnico forman parte de la documentación del proyecto final. Las capturas
+      se generaron con Firefox en una ventana de 1280 × 900 px y en una vista móvil de 500 × 900 px.
+    </p>
+
+    <div class="callout callout--ok">
+      <p class="callout__title">¡A jugar!</p>
+      <p>
+        Abre el menú, elige <strong>Jugar</strong> y trata de llevar las 52 cartas a las fundaciones.
+        Recuerda que puedes deshacer, pedir una pista y revisar el inspector de estructuras cuando lo
+        necesites.
+      </p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pruebas — Klondike</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f4f1ea; color: #1d2520; }
+    h1 { margin-top: 0; }
+    .summary { padding: 1rem 1.25rem; border-radius: .75rem; font-weight: 700; margin-bottom: 1rem; }
+    .summary--ok { background: #d8f3dc; color: #1b4332; }
+    .summary--fail { background: #ffd6d6; color: #7f1d1d; }
+    .results { display: grid; gap: .4rem; padding-left: 1.5rem; }
+    .result { padding: .45rem .6rem; border-radius: .45rem; background: #fff; border: 1px solid #ddd6c8; }
+    .result--ok { border-left: 5px solid #2d6a4f; }
+    .result--fail { border-left: 5px solid #b91c1c; }
+    .result pre { white-space: pre-wrap; color: #7f1d1d; font-size: .82rem; }
+    code { background: #e9e2d4; padding: .1rem .3rem; border-radius: .25rem; }
+  </style>
+</head>
+<body>
+  <h1>Pruebas de estructuras y lógica</h1>
+  <p>Ejecuta este archivo desde <code>http://localhost:8000/tests/</code>.</p>
+  <div id="results">Ejecutando…</div>
+  <script type="module">
+    import { runTests } from './test-runner.js';
+    import './structures.test.js';
+    import './game.test.js';
+    runTests(document.getElementById('results'));
+  </script>
+</body>
+</html>

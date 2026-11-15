@@ -1,0 +1,432 @@
+/* ============================================================
+   Tablero de juego, barra superior, pilas y mensajes
+   ============================================================ */
+
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 1240px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: clamp(0.5rem, 1.6vw, 1.2rem);
+}
+
+.game__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 15px;
+  background: rgba(3, 25, 18, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.game__bar-start {
+  order: 0;
+}
+
+.game__stats {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.7rem, 2.5vw, 2rem);
+  order: 1;
+}
+
+.game__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  order: 2;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 3.1rem;
+}
+
+.stat__label {
+  font-size: 0.57rem;
+  font-weight: 650;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat__value {
+  font-size: 1.06rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+
+.game__action {
+  gap: 0.35rem;
+}
+
+.game__action-icon {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.game__message {
+  min-height: 1.4rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  text-align: center;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+
+.game__message--ok {
+  color: #c9f7d8;
+}
+
+.game__message--warn {
+  color: #ffd7a8;
+}
+
+/* ------------------------------------------------------------ Tablero */
+
+.board {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 3.2vw, 2.4rem);
+  padding: clamp(0.55rem, 2vw, 1.4rem);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.13), transparent 55%),
+    linear-gradient(160deg, #126144 0%, #0a402c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 0 70px rgba(0, 0, 0, 0.18),
+    0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.board__row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(0.3rem, 1.2vw, 0.9rem);
+  align-items: start;
+  width: 100%;
+}
+
+.board__spacer {
+  height: var(--card-h);
+}
+
+/* ------------------------------------------------------------ Pilas */
+
+.pile {
+  position: relative;
+  justify-self: center;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius);
+  border: 1.5px dashed rgba(255, 255, 255, 0.27);
+  background: rgba(0, 0, 0, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pile[role='button'] {
+  cursor: pointer;
+}
+
+.pile--empty {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.pile--stock .card,
+.pile--waste .card,
+.pile--foundation .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pile--stock .card {
+  pointer-events: none;
+}
+
+.pile--waste {
+  overflow: visible;
+  z-index: 1;
+}
+
+.pile--foundation {
+  display: grid;
+  place-items: center;
+}
+
+.pile__watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--card-w) * 0.5);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.13);
+  pointer-events: none;
+  user-select: none;
+}
+
+.pile__watermark--king {
+  font-family: var(--serif);
+  font-weight: 700;
+}
+
+.pile--tableau {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto;
+  min-height: var(--card-h);
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pile--tableau::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--card-h);
+  border-radius: var(--radius);
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pile--tableau .pile__watermark {
+  top: 0;
+  height: var(--card-h);
+}
+
+.pile--tableau .card {
+  position: relative;
+  z-index: 1;
+}
+
+.pile--tableau .card + .card {
+  margin-top: calc(var(--card-w) * -0.96);
+}
+
+.pile--tableau .card--back + .card--back {
+  margin-top: calc(var(--card-w) * -1.18);
+}
+
+.pile--tableau .card--back + .card--up {
+  margin-top: calc(var(--card-w) * -1.18);
+}
+
+.pile__top-card {
+  z-index: 2;
+}
+
+.pile__badge {
+  position: absolute;
+  right: -0.42rem;
+  bottom: -0.42rem;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: rgba(4, 28, 20, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: var(--cream);
+  font-size: 0.68rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.pile__badge--soft {
+  background: rgba(4, 28, 20, 0.72);
+}
+
+.pile__ghost {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--card-w) * 0.36);
+  color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.pile__ghost-text {
+  position: absolute;
+  right: 0;
+  bottom: 0.35rem;
+  left: 0;
+  text-align: center;
+  font-size: 0.56rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.pile--recycle .pile__ghost {
+  color: var(--gold-light);
+}
+
+.pile--recycle {
+  border-color: rgba(246, 217, 153, 0.5);
+  background: rgba(246, 217, 153, 0.08);
+}
+
+/* ------------------------------------------------------------ Destinos válidos y pistas */
+
+.pile--valid {
+  border-color: rgba(246, 217, 153, 0.9);
+  background: rgba(246, 217, 153, 0.12);
+  box-shadow: 0 0 0 3px rgba(246, 217, 153, 0.22);
+}
+
+.pile--tableau.pile--valid {
+  background: transparent;
+  box-shadow: none;
+}
+
+.pile--tableau.pile--valid::before {
+  border-color: rgba(246, 217, 153, 0.9);
+  background: rgba(246, 217, 153, 0.13);
+  box-shadow: 0 0 0 3px rgba(246, 217, 153, 0.22);
+}
+
+.pile--hint {
+  box-shadow: 0 0 0 3px rgba(125, 245, 184, 0.4);
+  border-color: rgba(157, 245, 196, 0.8);
+}
+
+.pile--tableau.pile--hint {
+  box-shadow: none;
+}
+
+.pile--tableau.pile--hint::before {
+  border-color: rgba(157, 245, 196, 0.8);
+  box-shadow: 0 0 0 3px rgba(125, 245, 184, 0.4);
+}
+
+.pile--drop {
+  outline: 3px dashed var(--gold-light);
+  outline-offset: 4px;
+}
+
+/* ------------------------------------------------------------ Pie */
+
+.game__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.3rem 0.2rem;
+  color: rgba(247, 243, 232, 0.5);
+  font-size: 0.7rem;
+}
+
+.game__footer code {
+  color: rgba(247, 243, 232, 0.78);
+  font-size: 0.72rem;
+}
+
+.game__footer-spacer {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------ Responsive */
+
+@media (max-width: 980px) {
+  .game__stats {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: space-around;
+    padding-top: 0.15rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .game__actions {
+    order: 2;
+    flex: 1;
+  }
+
+  .game__bar-start {
+    order: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .game {
+    gap: 0.5rem;
+    padding: 0.4rem;
+  }
+
+  .game__bar {
+    gap: 0.4rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .game__action-text {
+    display: none;
+  }
+
+  .game__action {
+    padding: 0.45rem 0.55rem;
+  }
+
+  .game__action-icon {
+    font-size: 1rem;
+  }
+
+  .stat {
+    min-width: 2.7rem;
+    align-items: center;
+  }
+
+  .stat__value {
+    font-size: 0.92rem;
+  }
+
+  .board {
+    gap: 0.9rem;
+    padding: 0.45rem;
+    border-radius: 16px;
+  }
+
+  .game__footer-spacer {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --card-w: clamp(40px, 11.7vw, 56px);
+  }
+
+  .game__message {
+    font-size: 0.8rem;
+  }
+}

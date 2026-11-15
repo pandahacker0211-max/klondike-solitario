@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual técnico — Klondike</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<main class="sheet">
+
+  <!-- ============================================================ PORTADA -->
+  <section class="cover">
+    <div class="cover__band">
+      <p class="cover__kicker">Proyecto final · Estructuras de Datos</p>
+      <h1 class="cover__title">Klondike</h1>
+      <p class="cover__subtitle">Manual técnico</p>
+      <p class="cover__suits" aria-hidden="true">♠ ♥ ♦ ♣</p>
+      <div class="cover__meta">
+        <span><strong>Producto:</strong> Solitario Klondike para navegador</span>
+        <span><strong>Lenguaje:</strong> JavaScript ES2022, HTML5 y CSS3</span>
+        <span><strong>Estructuras:</strong> pila, cola, lista circular, lista doblemente enlazada y BST</span>
+        <span><strong>Documentación:</strong> arquitectura, diseño, complejidad, pruebas y sustentación</span>
+      </div>
+      <div class="cover__bottom">
+        <span>Miguel Angel Vergara Morales</span>
+        <span>Danney Yuliana Medina Males</span>
+      </div>
+    </div>
+    <p class="cover__note">
+      Este documento describe cómo está construido el juego por dentro: la arquitectura, las cinco
+      estructuras de datos implementadas desde cero, las decisiones de diseño, las complejidades, las
+      pruebas automatizadas y la forma de ejecutar y sustentar el proyecto. Complementa el manual de
+      usuario, que explica el juego desde el punto de vista del jugador.
+    </p>
+  </section>
+
+  <!-- ============================================================ ÍNDICE -->
+  <section class="page-break">
+    <h2>Contenido</h2>
+    <ol class="toc">
+      <li><span>Resumen del proyecto</span><small>Objetivo, alcance y funcionamiento general</small></li>
+      <li><span>Tecnologías y arquitectura</span><small>Capas, dependencias y flujo de datos</small></li>
+      <li><span>Organización del código</span><small>Archivos, responsabilidades y punto de entrada</small></li>
+      <li><span>Estructuras de datos</span><small>Diseño, operaciones, complejidad y uso real</small></li>
+      <li><span>Lógica del juego</span><small>Reparto, movimientos, puntaje, deshacer y fin de partida</small></li>
+      <li><span>Ranking con árbol binario de búsqueda</span><small>Claves, recorridos, poda y persistencia</small></li>
+      <li><span>Interfaz gráfica</span><small>Pantallas, eventos, accesibilidad y diseño adaptable</small></li>
+      <li><span>Pruebas y validación</span><small>Suite automatizada, evidencia y revisión manual</small></li>
+      <li><span>Cumplimiento de los requisitos</span><small>Trazabilidad con la consigna de la asignatura</small></li>
+      <li><span>Ejecución y despliegue</span><small>Servidor local, GitHub Pages y navegadores</small></li>
+      <li><span>Aportes del equipo y guía de sustentación</span><small>Roles, preguntas frecuentes y demostración</small></li>
+      <li><span>Conclusiones y trabajo futuro</span><small>Resultados, límites y mejoras posibles</small></li>
+      <li><span>Referencias</span><small>Documentación y estándares consultados</small></li>
+      <li><span>Anexo A. Diagrama de clases</span><small>Vista completa de las clases y relaciones</small></li>
+    </ol>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Cómo leer este manual</p>
+      <p>
+        Los nombres de archivos y clases aparecen en <code>monoespaciado</code>. Las tablas de complejidad
+        usan la notación asintótica habitual: <code>O(1)</code> constante, <code>O(log n)</code>
+        logarítmica, <code>O(n)</code> lineal y <code>O(n²)</code> cuadrática. La variable <code>n</code>
+        representa la cantidad de cartas o de entradas del ranking, según el contexto.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 1 -->
+  <section class="page-break">
+    <h2>1. Resumen del proyecto</h2>
+    <p class="lead">
+      Klondike es un solitario clásico para navegador. El jugador debe llevar las 52 cartas a cuatro
+      fundaciones, una por palo, en orden ascendente. El proyecto implementa el juego completo y, sobre
+      todo, demuestra que las cinco estructuras de datos fueron construidas desde cero con nodos y
+      referencias, y que cada una cumple un papel real dentro de la partida.
+    </p>
+
+    <h3>1.1 Alcance funcional</h3>
+    <table>
+      <thead>
+        <tr><th>Área</th><th>Implementación</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Reglas</td><td>Reparto triangular, columnas descendentes alternando colores, fundaciones por palo, reyes en columnas vacías, grupos válidos y reciclaje del descarte.</td></tr>
+        <tr><td>Modalidades</td><td>Robo de 1 o 3 cartas; 3, 5 o pases ilimitados. Los ajustes se guardan en el navegador.</td></tr>
+        <tr><td>Partida</td><td>Puntaje, movimientos, tiempo, pases, pistas, autocompletado, rendición y condiciones de victoria y derrota.</td></tr>
+        <tr><td>Historial</td><td>Deshacer y rehacer cualquier cantidad de movimientos mediante pilas de instantáneas.</td></tr>
+        <tr><td>Ranking</td><td>Top 10 local de partidas ganadas, ordenado por puntaje y almacenado con un árbol binario de búsqueda.</td></tr>
+        <tr><td>Interfaz</td><td>Menú, tablero, ranking, ajustes, reglas, inspector de estructuras y diseño adaptable a móvil.</td></tr>
+        <tr><td>Calidad</td><td>40 pruebas automatizadas, JSDoc en las capas de lógica y estructuras, y validación manual en navegador.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.2 Las cinco estructuras y su papel</h3>
+    <table>
+      <thead>
+        <tr><th>Estructura</th><th>Archivo</th><th>Uso dentro del juego</th><th>Operación característica</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Pila</strong></td>
+          <td class="code">src/structures/Stack.js</td>
+          <td>Descarte, cuatro fundaciones y pilas de deshacer/rehacer.</td>
+          <td><code>push</code> / <code>pop</code> / <code>peek</code> en O(1).</td>
+        </tr>
+        <tr>
+          <td><strong>Cola</strong></td>
+          <td class="code">src/structures/Queue.js</td>
+          <td>Mazo de robo y reparto inicial de las 52 cartas.</td>
+          <td><code>enqueue</code> / <code>dequeue</code> en O(1).</td>
+        </tr>
+        <tr>
+          <td><strong>Lista circular</strong></td>
+          <td class="code">src/structures/CircularList.js</td>
+          <td>Control de los pases del mazo y del cursor de pase actual.</td>
+          <td><code>advance</code> / <code>current</code> en O(1).</td>
+        </tr>
+        <tr>
+          <td><strong>Lista doblemente enlazada</strong></td>
+          <td class="code">src/structures/DoublyLinkedList.js</td>
+          <td>Las siete columnas del tablero y los grupos que se mueven entre ellas.</td>
+          <td><code>splitFrom</code> y recorridos en ambos sentidos.</td>
+        </tr>
+        <tr>
+          <td><strong>Árbol binario de búsqueda</strong></td>
+          <td class="code">src/structures/BST.js</td>
+          <td>Ranking de mejores puntajes; la clave es el puntaje.</td>
+          <td><code>insert</code>, <code>search</code>, <code>delete</code> y recorrido inorden.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>1.3 Resultado</h3>
+    <p>
+      El juego funciona de inicio a fin: se puede jugar con ratón o teclado, ganar, perder, deshacer,
+      rehacer, consultar pistas, autocompletar una victoria, guardar el puntaje y revisar en vivo el
+      contenido de las estructuras. La suite automatizada final reporta <strong>40 pruebas aprobadas y
+      0 fallidas</strong>.
+    </p>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section class="page-break">
+    <h2>2. Tecnologías y arquitectura</h2>
+
+    <h3>2.1 Decisiones tecnológicas</h3>
+    <table>
+      <thead>
+        <tr><th>Decisión</th><th>Motivo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JavaScript ES2022 con módulos nativos</td><td>El navegador carga los módulos directamente; no hay compilación, empaquetado ni dependencias que instalar.</td></tr>
+        <tr><td>HTML5 y CSS3, sin <em>frameworks</em></td><td>La interfaz se construye con DOM y estilos propios. Esto hace visible el trabajo y evita ocultar la lógica detrás de una librería.</td></tr>
+        <tr><td>Sin <em>canvas</em></td><td>Las cartas son elementos HTML accesibles, seleccionables y compatibles con teclado y lectores de pantalla.</td></tr>
+        <tr><td>Sin Base de datos</td><td>El ranking y los ajustes se guardan en <code>localStorage</code>; la partida vive en memoria.</td></tr>
+        <tr><td>Semilla aleatoria explícita</td><td>El reparto es reproducible: la semilla se muestra en pantalla y permite repetir una partida para probar o demostrar.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 Capas y dependencias</h3>
+    <p>
+      El código se organiza en cuatro capas con una dirección de dependencia clara: la interfaz conoce
+      el juego, el juego conoce las estructuras, y las estructuras no conocen a nadie. Ninguna estructura
+      importa clases del juego ni del DOM.
+    </p>
+
+    <div class="tree">┌──────────────────────────────────────────────────────────────┐
+│  Interfaz (DOM)                                              │
+│  App · MenuView · GameView · LeaderboardView · Modals        │
+│  StructureInspector                                          │
+└───────────────────────────┬──────────────────────────────────┘
+                            │ usa y ordena
+┌───────────────────────────▼──────────────────────────────────┐
+│  Lógica del juego                                            │
+│  KlondikeGame · Rules · Scoring · Snapshot · DeckFactory     │
+│  Leaderboard                                                 │
+└───────────────────────────┬──────────────────────────────────┘
+                            │ usa
+┌───────────────────────────▼──────────────────────────────────┐
+│  Estructuras propias                                         │
+│  Stack · Queue · CircularList · DoublyLinkedList · BST       │
+└──────────────────────────────────────────────────────────────┘
+                            ▲
+                            │ utilidades transversales
+              config.js · utils/dom.js · utils/rng.js · utils/storage.js</div>
+
+    <h3>2.3 Flujo de una acción</h3>
+    <p>
+      Todas las acciones siguen el mismo recorrido. La vista no decide reglas: solo captura el evento,
+      llama al motor y vuelve a dibujar el estado que el motor devuelve.
+    </p>
+    <ol>
+      <li>El jugador hace clic, arrastra una carta o presiona una tecla.</li>
+      <li><code>GameView</code> identifica la zona y la carta, y llama a un método de <code>KlondikeGame</code>.</li>
+      <li><code>KlondikeGame</code> valida la jugada con <code>Rules</code>, actualiza las estructuras y el puntaje, y registra la instantánea para deshacer.</li>
+      <li>La vista llama a <code>refresh()</code>, reconstruye las pilas con el estado actual y actualiza los contadores.</li>
+      <li>Si la partida terminó, el motor cambia su estado y la aplicación muestra el modal de resultado.</li>
+    </ol>
+
+    <div class="callout callout--ok">
+      <p class="callout__title">Ventaja de esta separación</p>
+      <p>
+        La lógica se puede probar sin navegador. Las 40 pruebas crean partidas con semillas y snapshots
+        conocidos, ejecutan movimientos y comparan resultados sin tocar el DOM. La interfaz puede
+        cambiar sin reescribir las reglas, y las reglas pueden cambiar sin tocar la interfaz.
+      </p>
+    </div>
+
+    <h3>2.4 Estado y persistencia</h3>
+    <table>
+      <thead>
+        <tr><th>Dato</th><th>Dónde vive</th><th>Duración</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Partida en curso (mazo, descarte, fundaciones, columnas, puntaje, movimientos)</td><td>Memoria, dentro de <code>KlondikeGame</code></td><td>Mientras la pestaña permanezca abierta.</td></tr>
+        <tr><td>Historial de deshacer y rehacer</td><td>Dos <code>Stack</code> de instantáneas en memoria</td><td>Mientras dure la partida.</td></tr>
+        <tr><td>Ajustes (nombre, robo, pases)</td><td><code>localStorage</code>, clave <code>klondike.settings.v1</code></td><td>Persistente en el navegador.</td></tr>
+        <tr><td>Ranking (top 10)</td><td><code>localStorage</code>, clave <code>klondike.scores.v1</code></td><td>Persistente en el navegador.</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">
+      No se envía información a internet. Si el almacenamiento está lleno o bloqueado, el juego sigue
+      funcionando en memoria y el ranking informa que no pudo guardar.
+    </p>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section class="page-break">
+    <h2>3. Organización del código</h2>
+    <p>
+      El proyecto tiene 23 módulos de JavaScript, una página HTML y cuatro hojas de estilo, además de
+      las pruebas y la documentación. La separación por carpetas permite ubicar rápido cada
+      responsabilidad.
+    </p>
+
+    <div class="tree">ProyectoFinal/
+├── index.html                 Página del juego
+├── README.md                  Presentación, ejecución y enlaces
+├── src/
+│   ├── main.js                Punto de entrada: monta App sobre #app
+│   ├── config.js              Constantes, ajustes y normalización
+│   ├── structures/            Las cinco estructuras propias
+│   │   ├── Stack.js
+│   │   ├── Queue.js
+│   │   ├── CircularList.js
+│   │   ├── DoublyLinkedList.js
+│   │   └── BST.js
+│   ├── game/                  Lógica independiente del DOM
+│   │   ├── Card.js
+│   │   ├── DeckFactory.js
+│   │   ├── Rules.js
+│   │   ├── Scoring.js
+│   │   ├── Snapshot.js
+│   │   ├── KlondikeGame.js
+│   │   └── Leaderboard.js
+│   ├── ui/                    Vistas y modales
+│   │   ├── App.js
+│   │   ├── MenuView.js
+│   │   ├── GameView.js
+│   │   ├── LeaderboardView.js
+│   │   ├── Modals.js
+│   │   └── StructureInspector.js
+│   └── utils/
+│       ├── dom.js             h(), clear(), formatos
+│       ├── rng.js             Generador determinista
+│       └── storage.js         Acceso seguro a localStorage
+├── styles/                    base.css · board.css · cards.css · modals.css
+├── tests/                     test-runner.js · structures.test.js · game.test.js
+└── docs/                      Manuales, diagrama y capturas</div>
+
+    <h3>3.1 Responsabilidades por archivo</h3>
+    <table class="table--compact">
+      <thead>
+        <tr><th>Archivo</th><th>Responsabilidad</th><th class="num">Líneas</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">src/structures/Stack.js</td><td>Pila LIFO con nodos enlazados.</td><td class="num">115</td></tr>
+        <tr><td class="code">src/structures/Queue.js</td><td>Cola FIFO con cabeza y cola.</td><td class="num">124</td></tr>
+        <tr><td class="code">src/structures/CircularList.js</td><td>Lista circular simple con cursor.</td><td class="num">334</td></tr>
+        <tr><td class="code">src/structures/DoublyLinkedList.js</td><td>Lista doble con recorridos y <code>splitFrom</code>.</td><td class="num">324</td></tr>
+        <tr><td class="code">src/structures/BST.js</td><td>Árbol binario de búsqueda con recorridos y eliminación.</td><td class="num">278</td></tr>
+        <tr><td class="code">src/game/KlondikeGame.js</td><td>Estado, reglas, movimientos, puntaje, pistas, deshacer y fin de partida.</td><td class="num">955</td></tr>
+        <tr><td class="code">src/game/Leaderboard.js</td><td>Ranking sobre BST y persistencia.</td><td class="num">208</td></tr>
+        <tr><td class="code">src/game/DeckFactory.js</td><td>Baraja ordenada, barajado y registro de cartas.</td><td class="num">57</td></tr>
+        <tr><td class="code">src/game/Rules.js</td><td>Validación de columnas, fundaciones y secuencias.</td><td class="num">74</td></tr>
+        <tr><td class="code">src/game/Card.js</td><td>Modelo de carta, palos, valores y serialización.</td><td class="num">93</td></tr>
+        <tr><td class="code">src/ui/GameView.js</td><td>Tablero, eventos, selección, arrastrar y soltar, teclado.</td><td class="num">1201</td></tr>
+        <tr><td class="code">src/ui/App.js</td><td>Navegación entre pantallas, ajustes, modales y ranking.</td><td class="num">408</td></tr>
+        <tr><td class="code">src/ui/StructureInspector.js</td><td>Vista en vivo de las estructuras.</td><td class="num">133</td></tr>
+        <tr><td class="code">tests/game.test.js</td><td>Pruebas de juego, reglas, ranking, pistas y fin de partida.</td><td class="num">420</td></tr>
+        <tr><td class="code">tests/structures.test.js</td><td>Pruebas de las cinco estructuras.</td><td class="num">205</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Punto de entrada</h3>
+    <pre><code>// src/main.js
+import { App } from './ui/App.js';
+
+const root = document.getElementById('app');
+if (!root) throw new Error('No se encontró el contenedor #app.');
+
+new App(root);</code></pre>
+    <p>
+      <code>App</code> es el coordinador. Decide qué pantalla mostrar, conserva los ajustes, crea la
+      partida y conecta los eventos de la vista con el motor. <code>GameView</code> se destruye al salir
+      de la partida para liberar el temporizador y los escuchadores de teclado; así se evitan fugas y
+      acciones duplicadas.
+    </p>
+
+    <h3>3.3 Documentación en el código</h3>
+    <p>
+      Todas las clases y funciones públicas tienen comentarios JSDoc con tipo de parámetros, valor de
+      retorno y, en las capas de estructuras y lógica, una etiqueta <code>@complexity</code>. En total
+      hay más de 200 funciones y métodos, y más de 80 anotaciones de complejidad. Esto permite generar
+      documentación adicional y sustenta las tablas de este manual.
+    </p>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section class="page-break">
+    <h2>4. Estructuras de datos</h2>
+    <p class="lead">
+      Las cinco estructuras están implementadas con nodos y referencias. No se usan arreglos del
+      lenguaje para simular pilas, colas, listas o árboles, ni se usan las clases <code>Map</code>,
+      <code>Set</code> o similares para reemplazar su comportamiento. Los arreglos aparecen únicamente
+      en la interfaz y en las instantáneas, como formato de transporte para dibujar o serializar.
+    </p>
+
+    <h3>4.0 Resumen de complejidades</h3>
+    <table>
+      <thead>
+        <tr><th>Estructura</th><th>Operación</th><th>Complejidad</th><th>Observación</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="4"><strong>Pila</strong></td><td><code>push</code>, <code>pop</code>, <code>peek</code></td><td>O(1)</td><td>Solo se toca el tope.</td></tr>
+        <tr><td><code>size</code>, <code>isEmpty</code>, <code>clear</code></td><td>O(1)</td><td>Contador interno.</td></tr>
+        <tr><td><code>toArray</code></td><td>O(n)</td><td>Recorre de tope a base.</td></tr>
+        <tr><td><code>search</code></td><td>No implementado</td><td>La pila no necesita búsqueda; el juego usa el tope.</td></tr>
+        <tr><td rowspan="3"><strong>Cola</strong></td><td><code>enqueue</code>, <code>dequeue</code>, <code>front</code></td><td>O(1)</td><td>Cabeza y cola siempre disponibles.</td></tr>
+        <tr><td><code>size</code>, <code>isEmpty</code>, <code>clear</code></td><td>O(1)</td><td>Contador interno.</td></tr>
+        <tr><td><code>toArray</code></td><td>O(n)</td><td>Recorre desde la cabeza.</td></tr>
+        <tr><td rowspan="4"><strong>Lista circular</strong></td><td><code>insertAtStart</code>, <code>insertAtEnd</code></td><td>O(1)</td><td>Se conserva la referencia al último nodo.</td></tr>
+        <tr><td><code>advance</code>, <code>current</code>, <code>resetCursor</code></td><td>O(1)</td><td>El cursor avanza al siguiente nodo.</td></tr>
+        <tr><td><code>insertAt</code>, <code>removeAt</code>, <code>remove</code>, <code>search</code>, <code>get</code></td><td>O(n)</td><td>Requieren recorrer hasta la posición.</td></tr>
+        <tr><td><code>traverse</code>, <code>toArray</code></td><td>O(n)</td><td>Una vuelta completa a la lista.</td></tr>
+        <tr><td rowspan="4"><strong>Lista doble</strong></td><td><code>insertAtStart</code>, <code>insertAtEnd</code></td><td>O(1)</td><td>Referencias a cabeza y cola.</td></tr>
+        <tr><td><code>insertAt</code>, <code>removeAt</code>, <code>remove</code>, <code>search</code>, <code>get</code></td><td>O(n)</td><td>Recorrido desde el extremo más cercano.</td></tr>
+        <tr><td><code>splitFrom</code></td><td>O(n)</td><td>Separa la cola desde una posición y reconecta.</td></tr>
+        <tr><td><code>traverseForward</code>, <code>traverseBackward</code>, <code>toArray</code></td><td>O(n)</td><td>Recorridos en ambos sentidos.</td></tr>
+        <tr><td rowspan="4"><strong>BST</strong></td><td><code>insert</code>, <code>search</code>, <code>delete</code></td><td>O(h) promedio O(log n), peor O(n)</td><td><code>h</code> es la altura; el peor caso ocurre con claves ordenadas.</td></tr>
+        <tr><td><code>minEntry</code>, <code>maxEntry</code></td><td>O(h)</td><td>Bajan por la izquierda o por la derecha.</td></tr>
+        <tr><td><code>inOrder</code>, <code>preOrder</code>, <code>postOrder</code>, <code>height</code></td><td>O(n)</td><td>Recorren todo el árbol.</td></tr>
+        <tr><td><code>size</code>, <code>isEmpty</code>, <code>clear</code></td><td>O(1)</td><td>Contador interno.</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">
+      En el Klondike, <code>n</code> es como máximo 52 cartas; en el ranking, como máximo 10 entradas.
+      Por eso las complejidades lineales son perfectamente aceptables y el interés está en demostrar el
+      diseño correcto de cada estructura.
+    </p>
+  </section>
+
+  <!-- ============================================================ 4.1 -->
+  <section>
+    <h2>4.1 Pila (Stack)</h2>
+    <p>
+      La pila sigue la disciplina <strong>LIFO</strong> (<em>last in, first out</em>): el último elemento
+      que entra es el primero que sale. Se implementa con nodos enlazados y un puntero al tope.
+    </p>
+
+    <div class="tree">StackNode                         Stack
+┌───────────────┐                ┌────────────────────┐
+│ value: Card   │                │ #top ────────────► │──┐
+│ next: nodo    │◄───────────────│ #size: number      │  │
+└───────────────┘                └────────────────────┘  │
+        ▲                                                 │
+        └─────────────────────────────────────────────────┘
+
+top ──► [ K♠ ] ──► [ 3♥ ] ──► [ A♦ ] ──► null</div>
+
+    <h3>Operaciones</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Qué hace</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">push(value)</td><td>Crea un nodo, lo enlaza al tope anterior y actualiza el tope.</td><td>O(1)</td></tr>
+        <tr><td class="code">pop()</td><td>Desconecta el nodo del tope, devuelve su valor y reduce el tamaño.</td><td>O(1)</td></tr>
+        <tr><td class="code">peek()</td><td>Devuelve el valor del tope sin extraerlo.</td><td>O(1)</td></tr>
+        <tr><td class="code">isEmpty() / size()</td><td>Consulta el estado mediante el contador interno.</td><td>O(1)</td></tr>
+        <tr><td class="code">clear()</td><td>Descarta la referencia al tope y reinicia el tamaño.</td><td>O(1)</td></tr>
+        <tr><td class="code">toArray()</td><td>Devuelve los valores del tope a la base.</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Uso real en el juego</h3>
+    <ul>
+      <li><strong>Descarte (<code>waste</code>):</strong> cada robo hace <code>push</code> de la carta; solo el <code>peek</code> puede jugarse; al moverla se hace <code>pop</code>.</li>
+      <li><strong>Fundaciones:</strong> hay cuatro pilas independientes. Cada una recibe cartas del mismo palo en orden ascendente; la carta superior es la única visible y jugable.</li>
+      <li><strong>Deshacer y rehacer:</strong> son dos pilas de instantáneas. Antes de cada acción se hace <code>push</code> del estado en la pila de deshacer y se limpia la de rehacer. Al deshacer se hace <code>pop</code> de la primera y <code>push</code> en la segunda.</li>
+    </ul>
+
+    <div class="callout">
+      <p class="callout__title">Por qué una pila y no un arreglo</p>
+      <p>
+        Las tres zonas del juego son naturalmente LIFO: la carta que se roba queda encima del descarte,
+        la última carta puesta en una fundación es la que se puede mover, y la última acción es la primera
+        que se deshace. La pila expresa esa semántica directamente y garantiza O(1) en las operaciones
+        críticas.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4.2 -->
+  <section>
+    <h2>4.2 Cola (Queue)</h2>
+    <p>
+      La cola sigue la disciplina <strong>FIFO</strong> (<em>first in, first out</em>): el primero que
+      entra es el primero que sale. Se implementa con nodos enlazados y dos referencias, cabeza y cola.
+    </p>
+
+    <div class="tree">QueueNode                        Queue
+┌───────────────┐               ┌────────────────────┐
+│ value: Card   │               │ #head ───────────► │
+│ next: nodo    │               │ #tail ───────────► │
+└───────────────┘               │ #size: number      │
+                                └────────────────────┘
+
+head ──► [ 7♣ ] ──► [ Q♥ ] ──► [ 2♦ ] ──► null
+                                      ▲
+                                     tail</div>
+
+    <h3>Operaciones</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Qué hace</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">enqueue(value)</td><td>Crea un nodo y lo enlaza después de la cola; actualiza <code>tail</code>.</td><td>O(1)</td></tr>
+        <tr><td class="code">dequeue()</td><td>Desconecta la cabeza, devuelve su valor y actualiza <code>head</code>.</td><td>O(1)</td></tr>
+        <tr><td class="code">front()</td><td>Devuelve el valor de la cabeza sin extraerlo.</td><td>O(1)</td></tr>
+        <tr><td class="code">isEmpty() / size()</td><td>Consulta el estado con el contador.</td><td>O(1)</td></tr>
+        <tr><td class="code">clear()</td><td>Descarta cabeza y cola.</td><td>O(1)</td></tr>
+        <tr><td class="code">toArray()</td><td>Devuelve los valores desde la cabeza hasta la cola.</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Uso real en el juego</h3>
+    <ul>
+      <li><strong>Mazo de robo (<code>stock</code>):</strong> el reparto y cada robo hacen <code>dequeue</code> de la cabeza. El orden del mazo es exactamente el orden en que las cartas fueron encoladas.</li>
+      <li><strong>Reparto inicial:</strong> <code>createShuffledDeck</code> baraja la baraja y encola las 52 cartas. Luego el reparto triangular desencola una carta por posición.</li>
+      <li><strong>Reciclaje:</strong> al agotarse el mazo, el descarte se pasa temporalmente a una pila para invertir su orden y se vuelve a encolar en el mazo. Así la primera carta que se robó queda al final y el reciclaje conserva la lógica del solitario.</li>
+    </ul>
+
+    <div class="callout">
+      <p class="callout__title">Por qué una cola</p>
+      <p>
+        El mazo es una secuencia que se consume siempre por el frente. Una cola con referencias a cabeza
+        y cola permite robar en O(1) sin desplazar elementos, algo que un arreglo haría en O(n) si se
+        eliminara la primera posición.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4.3 -->
+  <section>
+    <h2>4.3 Lista circular (CircularList)</h2>
+    <p>
+      La lista circular simple mantiene un puntero al último nodo y hace que <code>tail.next</code> apunte
+      al primero. Además incluye un <strong>cursor</strong> que permite recorrerla de forma cíclica sin
+      perder la posición actual.
+    </p>
+
+    <div class="tree">         ┌──────────────────────────────────────┐
+         │                                      │
+         ▼                                      │
+    [ 1 ] ──► [ 2 ] ──► [ 3 ] ──► [ 4 ] ──► [ 5 ]
+      ▲                                      │
+      └──────────────────────────────────────┘
+                     tail ──┘
+              cursor ──► [ 3 ]</div>
+
+    <h3>Operaciones</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Qué hace</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">insertAtStart(value)</td><td>Inserta después del último y antes del primero.</td><td>O(1)</td></tr>
+        <tr><td class="code">insertAtEnd(value)</td><td>Inserta después del último y actualiza <code>tail</code>.</td><td>O(1)</td></tr>
+        <tr><td class="code">insertAt(index, value)</td><td>Recorre hasta la posición y reconecta.</td><td>O(n)</td></tr>
+        <tr><td class="code">removeAt(index) / remove(value)</td><td>Busca el nodo, lo desconecta y ajusta <code>tail</code> si era el último.</td><td>O(n)</td></tr>
+        <tr><td class="code">search(value) / get(index)</td><td>Recorre la lista y devuelve el nodo o valor.</td><td>O(n)</td></tr>
+        <tr><td class="code">advance()</td><td>Mueve el cursor al siguiente nodo; si está en el último, vuelve al primero.</td><td>O(1)</td></tr>
+        <tr><td class="code">current()</td><td>Devuelve el valor del cursor.</td><td>O(1)</td></tr>
+        <tr><td class="code">setCursor(index) / resetCursor()</td><td>Coloca el cursor en una posición o en el primero.</td><td>O(n) / O(1)</td></tr>
+        <tr><td class="code">traverse(callback) / toArray()</td><td>Recorre una vuelta completa desde el cursor.</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Uso real en el juego</h3>
+    <p>
+      La lista circular representa los <strong>pases del mazo</strong>. Al iniciar la partida se insertan
+      los números del 1 al límite (3, 5 o más si son ilimitados) y el cursor se coloca en el pase actual.
+      Cada reciclaje llama a <code>advance()</code>; cuando el cursor vuelve al inicio, el ciclo de pases
+      se reinicia. El indicador de la barra superior se alimenta de <code>current()</code> y del límite.
+    </p>
+    <p>
+      Con pases ilimitados, la lista se reconstruye con al menos tres nodos y crece a medida que el
+      jugador recicla, de modo que el cursor siempre tiene un siguiente. La operación <code>advance</code>
+      es O(1), que es justamente lo que se necesita en el clic del mazo.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Por qué una lista circular</p>
+      <p>
+        Los pases son un ciclo: después del último se vuelve al primero. Una lista circular modela ese
+        comportamiento sin condiciones especiales en el recorrido y permite mantener el cursor en O(1).
+        Una lista simple obligaría a reiniciar desde la cabeza en cada vuelta.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4.4 -->
+  <section>
+    <h2>4.4 Lista doblemente enlazada (DoublyLinkedList)</h2>
+    <p>
+      Cada nodo guarda una referencia al anterior y al siguiente. La lista mantiene <code>head</code> y
+      <code>tail</code>, lo que permite insertar y eliminar en los extremos en O(1), recorrer en ambos
+      sentidos y separar una cola desde una posición.
+    </p>
+
+    <div class="tree">       ┌──────────┐    ┌──────────┐    ┌──────────┐
+null ◄──┤  K♠      │◄──►│  Q♥      │◄──►│  J♣      ├──► null
+       │ prev/next│    │ prev/next│    │ prev/next│
+       └──────────┘    └──────────┘    └──────────┘
+          ▲                                  ▲
+         head                               tail</div>
+
+    <h3>Operaciones</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Qué hace</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">insertAtStart(value)</td><td>Inserta antes de la cabeza y actualiza <code>prev</code>.</td><td>O(1)</td></tr>
+        <tr><td class="code">insertAtEnd(value)</td><td>Inserta después de la cola y actualiza <code>tail</code>.</td><td>O(1)</td></tr>
+        <tr><td class="code">insertAt(index, value)</td><td>Recorre hasta la posición y reconecta ambos lados.</td><td>O(n)</td></tr>
+        <tr><td class="code">removeAt(index) / remove(value)</td><td>Desconecta el nodo y une sus vecinos.</td><td>O(n)</td></tr>
+        <tr><td class="code">search(value) / get(index)</td><td>Recorre desde el extremo más cercano.</td><td>O(n)</td></tr>
+        <tr><td class="code">traverseForward(cb) / traverseBackward(cb)</td><td>Recorren la lista en un sentido.</td><td>O(n)</td></tr>
+        <tr><td class="code">splitFrom(index)</td><td>Separa la lista en dos desde la posición indicada y devuelve la segunda.</td><td>O(n)</td></tr>
+        <tr><td class="code">size() / isEmpty() / clear()</td><td>Consulta o reinicia la lista.</td><td>O(1)</td></tr>
+        <tr><td class="code">toArray()</td><td>Devuelve los valores de cabeza a cola.</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Uso real en el juego</h3>
+    <ul>
+      <li><strong>Siete columnas:</strong> cada columna es una lista doble. El reparto inserta al final; la carta superior es el último nodo y se obtiene con <code>get(size - 1)</code>.</li>
+      <li><strong>Mover grupos:</strong> cuando el jugador arrastra una secuencia, el motor localiza la carta inicial, valida la secuencia y usa <code>splitFrom</code> para separar la cola de la lista. Luego inserta cada carta en la columna destino.</li>
+      <li><strong>Voltear cartas:</strong> al retirar la última carta, se consulta el nuevo último nodo y se marca <code>faceUp = true</code>.</li>
+      <li><strong>Interfaz e inspector:</strong> <code>traverseForward</code> dibuja la columna de arriba a abajo; <code>traverseBackward</code> permite mostrar el orden inverso en el inspector y comprobar que los enlaces <code>prev</code> son correctos.</li>
+    </ul>
+
+    <div class="callout">
+      <p class="callout__title">Por qué doblemente enlazada</p>
+      <p>
+        Las columnas se construyen y se consumen por el final, pero también se recorren hacia atrás para
+        mostrar el estado y para separar grupos. Una lista simple obligaría a recorrer toda la columna
+        para encontrar el nodo anterior al grupo; la lista doble lo hace en O(1) una vez ubicado el nodo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4.5 -->
+  <section>
+    <h2>4.5 Árbol binario de búsqueda (BST)</h2>
+    <p>
+      El árbol guarda una clave numérica y un valor asociado. Para el ranking, la clave es el puntaje y
+      el valor es la información de la partida. Las claves repetidas se insertan en el subárbol derecho
+      para no perder ningún registro.
+    </p>
+
+    <div class="tree">                    [ 100 · Ana ]
+                   /               \
+          [ 60 · Beto ]          [ 150 · Carla ]
+          /          \                    \
+   [ 40 · Diego ]  [ 80 · Eva ]      [ 120 · Fany ]
+
+inorden: 40, 60, 80, 100, 120, 150  (ascendente)
+preorden: 100, 60, 40, 80, 150, 120
+posorden: 40, 80, 60, 120, 150, 100</div>
+
+    <h3>Operaciones</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Qué hace</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">insert(key, value)</td><td>Desciende comparando claves; las iguales van a la derecha.</td><td>O(h) promedio O(log n), peor O(n)</td></tr>
+        <tr><td class="code">search(key)</td><td>Desciende por la rama correspondiente y devuelve el valor.</td><td>O(h) promedio O(log n), peor O(n)</td></tr>
+        <tr><td class="code">delete(key)</td><td>Cubre hoja, un hijo y dos hijos (reemplazo por el mínimo del subárbol derecho).</td><td>O(h) promedio O(log n), peor O(n)</td></tr>
+        <tr><td class="code">minEntry() / maxEntry()</td><td>Baja por la izquierda o por la derecha hasta el extremo.</td><td>O(h)</td></tr>
+        <tr><td class="code">inOrder(cb) / preOrder(cb) / postOrder(cb)</td><td>Recorridos clásicos con callback.</td><td>O(n)</td></tr>
+        <tr><td class="code">height()</td><td>Calcula la altura máxima del árbol.</td><td>O(n)</td></tr>
+        <tr><td class="code">size() / isEmpty() / clear()</td><td>Consulta o reinicia el árbol.</td><td>O(1)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Uso real en el juego</h3>
+    <p>
+      <code>Leaderboard</code> encapsula un BST. Al agregar un puntaje, inserta la entrada y poda el
+      mínimo mientras el tamaño supere 10. Para mostrar el ranking, recorre en inorden (ascendente) y
+      invierte el resultado, de modo que el mejor puntaje quede primero. <code>qualifies</code> consulta
+      el mínimo en O(h) para decidir si un puntaje entra al top. La persistencia guarda el inorden en
+      <code>localStorage</code> y lo vuelve a insertar al cargar.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Por qué un BST</p>
+      <p>
+        El ranking necesita orden, búsqueda por puntaje y eliminación del mínimo. Un BST ofrece las tres
+        cosas con costo logarítmico promedio y, sobre todo, permite explicar y demostrar los recorridos.
+        Con 10 entradas el costo es mínimo, pero el uso es genuino: no es un adorno, es el almacenamiento
+        real del ranking.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section class="page-break">
+    <h2>5. Lógica del juego</h2>
+    <p class="lead">
+      <code>KlondikeGame</code> es el corazón del proyecto. Mantiene el estado, valida las jugadas,
+      actualiza las estructuras, calcula el puntaje, registra el historial y decide cuándo termina la
+      partida. No importa nada del DOM.
+    </p>
+
+    <h3>5.1 Estado interno</h3>
+    <table>
+      <thead>
+        <tr><th>Campo</th><th>Tipo</th><th>Contenido</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">_stock</td><td><code>Queue&lt;Card&gt;</code></td><td>Cartas que aún no se han robado.</td></tr>
+        <tr><td class="code">_waste</td><td><code>Stack&lt;Card&gt;</code></td><td>Cartas robadas; solo el tope es jugable.</td></tr>
+        <tr><td class="code">_foundations</td><td><code>Stack&lt;Card&gt;[4]</code></td><td>Una pila por palo, de As a Rey.</td></tr>
+        <tr><td class="code">_tableau</td><td><code>DoublyLinkedList&lt;Card&gt;[7]</code></td><td>Las siete columnas.</td></tr>
+        <tr><td class="code">_passes</td><td><code>CircularList&lt;number&gt;</code></td><td>Pases disponibles y cursor actual.</td></tr>
+        <tr><td class="code">_undoStack / _redoStack</td><td><code>Stack&lt;Snapshot&gt;</code></td><td>Historial de estados.</td></tr>
+        <tr><td class="code">_score, _moves, _status</td><td>number / string</td><td>Puntaje, movimientos y estado (<code>playing</code>, <code>won</code>, <code>lost</code>).</td></tr>
+        <tr><td class="code">_seed, _startedAt, _finishedAt</td><td>number</td><td>Semilla y tiempos para reproducir y medir la partida.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 Reparto</h3>
+    <p>
+      <code>newGame</code> crea una baraja ordenada en una lista doble, la baraja con Fisher-Yates
+      adaptado y encola las 52 cartas. Luego reparte de forma triangular: la columna 0 recibe 1 carta,
+      la 1 recibe 2, y así hasta la 6 con 7. La última carta de cada columna se marca boca arriba. Las
+      24 cartas restantes quedan en el mazo.
+    </p>
+    <pre><code>for (let row = 0; row &lt; 7; row += 1) {
+  for (let column = row; column &lt; 7; column += 1) {
+    const card = this._stock.dequeue();
+    if (card) this._tableau[column].insertAtEnd(card);
+  }
+}
+// 1 + 2 + 3 + 4 + 5 + 6 + 7 = 28 cartas repartidas
+// 52 - 28 = 24 cartas en el mazo</code></pre>
+
+    <h3>5.3 Robo, reciclaje y pases</h3>
+    <ul>
+      <li><strong>Robo:</strong> <code>draw()</code> desencola hasta <code>drawCount</code> cartas y las apila en el descarte. Si el mazo está vacío, <code>drawOrRecycle()</code> intenta reciclar.</li>
+      <li><strong>Reciclaje:</strong> se vacía el descarte en una pila temporal, se desapila y se encola en el mazo. Esto invierte el orden para que la primera carta robada quede al final del nuevo mazo. Se descuentan 20 puntos y se consume un pase.</li>
+      <li><strong>Pases:</strong> la lista circular avanza con cada reciclaje. Si el límite es 3 y ya se usaron 3, el reciclaje se rechaza y se comprueba si la partida quedó sin movimientos.</li>
+    </ul>
+
+    <h3>5.4 Movimientos válidos</h3>
+    <table>
+      <thead>
+        <tr><th>Movimiento</th><th>Método</th><th>Validación</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Descarte → fundación</td><td class="code">moveToFoundation({type:'waste'})</td><td>La carta del tope debe ser la siguiente del palo en esa fundación.</td></tr>
+        <tr><td>Columna → fundación</td><td class="code">moveToFoundation({type:'tableau', index})</td><td>Igual que el anterior; después se voltea la nueva carta superior.</td></tr>
+        <tr><td>Columna → columna (grupo)</td><td class="code">moveTableauToTableau(from, cardId, to)</td><td>La secuencia desde <code>cardId</code> debe ser descendente y alternar colores; el destino debe aceptar la primera carta.</td></tr>
+        <tr><td>Descarte → columna</td><td class="code">moveWasteToTableau(to)</td><td>La carta superior del descarte debe encajar en la columna.</td></tr>
+        <tr><td>Fundación → columna</td><td class="code">moveFoundationToTableau(from, to)</td><td>La carta superior de la fundación debe encajar; descuenta 15 puntos.</td></tr>
+        <tr><td>Doble clic / autocompletar</td><td class="code">autoMoveToFoundation(source)</td><td>Busca la fundación correspondiente y mueve si es válido.</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Las funciones de <code>Rules.js</code> concentran las comparaciones: <code>canPlaceOnTableau</code>
+      exige una unidad menos y color contrario (o un Rey si la columna está vacía);
+      <code>canPlaceOnFoundation</code> exige el mismo palo y el valor consecutivo;
+      <code>isValidSequence</code> verifica una secuencia completa antes de mover un grupo.
+    </p>
+
+    <h3>5.5 Puntaje</h3>
+    <table>
+      <thead>
+        <tr><th>Acción</th><th class="num">Puntos</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mover una carta a una fundación</td><td class="num">+10</td></tr>
+        <tr><td>Voltear una carta del tablero</td><td class="num">+5</td></tr>
+        <tr><td>Devolver una carta de la fundación al tablero</td><td class="num">−15</td></tr>
+        <tr><td>Reciclar el descarte</td><td class="num">−20</td></tr>
+        <tr><td>Completar la partida</td><td class="num">+100</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">
+      <code>applyScore</code> impide que el puntaje baje de cero. Las constantes viven en
+      <code>Scoring.js</code> y se comparten con la interfaz para mostrar la tabla de reglas.
+    </p>
+  </section>
+
+  <!-- ============================================================ 5.6 -->
+  <section>
+    <h2>5.6 Deshacer y rehacer</h2>
+    <p>
+      Antes de cada acción que modifica el estado, el motor llama a <code>#recordUndo()</code>. Este
+      método captura una instantánea plana, la clona y la apila en <code>_undoStack</code>; además limpia
+      <code>_redoStack</code>, porque una acción nueva invalida el futuro que se había deshecho.
+    </p>
+
+    <pre><code>#recordUndo() {
+  this._undoStack.push(cloneSnapshot(this.#captureSnapshot()));
+  this._redoStack.clear();
+}
+
+undo() {
+  if (this._undoStack.isEmpty()) return false;
+  this._redoStack.push(cloneSnapshot(this.#captureSnapshot()));
+  this.loadSnapshot(this._undoStack.pop());
+  return true;
+}</code></pre>
+
+    <p>
+      La instantánea guarda las cartas como identificadores (<code>"spades-1"</code>,
+      <code>"hearts-12"</code>) y las columnas como pares <code>{ id, faceUp }</code>. No guarda objetos
+      <code>Card</code> completos, lo que evita ciclos y mantiene el formato serializable. Al cargar, el
+      motor reconstruye las pilas, las listas, el mazo, el descarte y los contadores. Un snapshot con
+      forma inválida se rechaza y el estado actual no cambia.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Comportamiento</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">getSnapshot()</td><td>Devuelve una copia plana del estado actual.</td><td>O(n)</td></tr>
+        <tr><td class="code">loadSnapshot(s, options)</td><td>Valida y reconstruye el estado; opcionalmente reinicia el historial.</td><td>O(n)</td></tr>
+        <tr><td class="code">undo() / redo()</td><td>Intercambian la instantánea actual con la pila correspondiente.</td><td>O(n)</td></tr>
+        <tr><td class="code">canUndo() / canRedo()</td><td>Consultas O(1) sobre las pilas.</td><td>O(1)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.7 Fin de partida</h3>
+    <p>
+      Después de cada acción, <code>#checkStatus()</code> comprueba dos condiciones. La victoria ocurre
+      cuando las cuatro fundaciones tienen 13 cartas. La derrota ocurre cuando el jugador se rinde o
+      cuando no hay movimientos posibles: el mazo está vacío, no se puede reciclar (sin pases) y ninguna
+      carta del descarte o de las columnas puede moverse. En ese caso el estado cambia a
+      <code>lost</code> y se registra <code>finishedAt</code>.
+    </p>
+    <p>
+      La rendición es una acción explícita: <code>surrender()</code> guarda el estado en la pila de
+      deshacer y marca la partida como perdida. Por eso el jugador puede cerrar el modal y deshacer para
+      continuar; es una decisión de diseño pensada para evitar bloqueos accidentales.
+    </p>
+
+    <h3>5.8 Pistas y autocompletado</h3>
+    <p>
+      <code>getHint()</code> busca en este orden: una carta que pueda ir a su fundación, un robo
+      disponible, un reciclaje posible, un movimiento entre columnas y, si nada funciona, devuelve
+      <code>{ type: 'none' }</code>. La interfaz resalta la carta y el destino con clases CSS.
+    </p>
+    <p>
+      <code>autoCompleteStep()</code> solo actúa cuando todas las cartas del tablero están boca arriba.
+      Mueve una carta a su fundación por paso y la interfaz lo llama repetidamente con una animación
+      corta. Así el jugador ve cómo se completa la victoria en lugar de que el tablero cambie de golpe.
+    </p>
+  </section>
+
+  <!-- ============================================================ 6 -->
+  <section class="page-break">
+    <h2>6. Ranking con árbol binario de búsqueda</h2>
+    <p>
+      El ranking conserva hasta 10 puntajes por navegador. La clase <code>Leaderboard</code> es la única
+      que conoce el BST; la interfaz solo ve una lista ordenada de entradas.
+    </p>
+
+    <h3>6.1 Clave, valor y duplicados</h3>
+    <p>
+      La clave es el puntaje y el valor es un objeto con nombre, modalidad, tiempo, movimientos y fecha.
+      Si dos partidas terminan con el mismo puntaje, la nueva se inserta a la derecha de la existente.
+      El recorrido inorden devuelve ambas; la poda elimina la menor cuando el árbol supera el límite.
+      Esto evita que un empate borre un registro válido.
+    </p>
+
+    <h3>6.2 Operaciones del ranking</h3>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Comportamiento</th><th>Complejidad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">load()</td><td>Lee el arreglo guardado, normaliza cada entrada y la inserta en el BST.</td><td>O(n log n)</td></tr>
+        <tr><td class="code">add(data)</td><td>Valida, inserta, poda el mínimo si hace falta y guarda.</td><td>O(log n) promedio</td></tr>
+        <tr><td class="code">qualifies(score)</td><td>Si hay cupo, acepta; si no, compara con el mínimo.</td><td>O(log n) promedio</td></tr>
+        <tr><td class="code">remove(score)</td><td>Elimina una ocurrencia y guarda.</td><td>O(log n) promedio</td></tr>
+        <tr><td class="code">search(score)</td><td>Devuelve la entrada con ese puntaje o <code>null</code>.</td><td>O(log n) promedio</td></tr>
+        <tr><td class="code">top(limit)</td><td>Inorden ascendente, invierte y corta los primeros.</td><td>O(n)</td></tr>
+        <tr><td class="code">clear()</td><td>Vacía el árbol y el almacenamiento.</td><td>O(1)</td></tr>
+        <tr><td class="code">getDebugInfo()</td><td>Devuelve los tres recorridos para el inspector.</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6.3 Persistencia y errores</h3>
+    <p>
+      El ranking se serializa como un arreglo en inorden. Si el contenido de <code>localStorage</code>
+      está corrupto, <code>load()</code> limpia el árbol y empieza vacío; si el almacenamiento no está
+      disponible, <code>save()</code> devuelve <code>false</code> y el juego sigue funcionando en
+      memoria. La interfaz informa cuando un puntaje no entra al top o cuando no se pudo guardar.
+    </p>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Por qué el ranking usa un BST y no un arreglo ordenado</p>
+      <p>
+        Un arreglo ordenado también resolvería el problema, pero el BST permite demostrar inserción,
+        búsqueda, eliminación y recorridos con costo logarítmico promedio. Además, el inspector muestra
+        los recorridos inorden, preorden y posorden, lo que convierte al ranking en una herramienta
+        visible para la sustentación.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 7 -->
+  <section class="page-break">
+    <h2>7. Interfaz gráfica</h2>
+    <p class="lead">
+      La interfaz se construye con DOM y CSS propios. No hay <em>canvas</em> ni <em>frameworks</em>: cada
+      carta es un elemento HTML con atributos de datos, lo que facilita los eventos, la accesibilidad y
+      las pruebas.
+    </p>
+
+    <h3>7.1 Pantallas</h3>
+    <table>
+      <thead>
+        <tr><th>Pantalla</th><th>Archivo</th><th>Contenido</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Menú</td><td class="code">MenuView.js</td><td>Jugar, ranking, cómo jugar, ajustes y estructuras; muestra la modalidad y el mejor puntaje.</td></tr>
+        <tr><td>Partida</td><td class="code">GameView.js</td><td>Barra de estado, mazo, descarte, fundaciones, siete columnas, mensajes y botones de ayuda.</td></tr>
+        <tr><td>Ranking</td><td class="code">LeaderboardView.js</td><td>Tabla de los 10 mejores, medallas y botón para borrar con confirmación.</td></tr>
+        <tr><td>Modales</td><td class="code">Modals.js</td><td>Reglas, ajustes, rendición, fin de partida, inspector y confirmaciones.</td></tr>
+        <tr><td>Inspector</td><td class="code">StructureInspector.js</td><td>Contenido en vivo de las cinco estructuras y recorridos del BST.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>7.2 Eventos del tablero</h3>
+    <ul>
+      <li><strong>Clic:</strong> selecciona una carta o ejecuta el movimiento hacia la pila marcada como destino válido.</li>
+      <li><strong>Doble clic:</strong> envía la carta superior del descarte o de una columna a su fundación si es posible.</li>
+      <li><strong>Arrastrar y soltar:</strong> usa los eventos nativos <code>dragstart</code>, <code>dragover</code>, <code>dragleave</code> y <code>drop</code>. Al arrastrar se marca la selección y se resaltan los destinos válidos.</li>
+      <li><strong>Teclado:</strong> <code>D</code> roba, <code>U</code> deshace, <code>Y</code> rehace, <code>P</code> pide pista, <code>A</code> autocompleta, <code>I</code> abre el inspector y <code>Esc</code> cancela la selección. <code>Enter</code> activa una pila enfocada.</li>
+    </ul>
+
+    <h3>7.3 Accesibilidad y responsive</h3>
+    <p>
+      Las pilas tienen <code>tabindex</code>, roles y etiquetas <code>aria-label</code>; las cartas
+      exponen su palo y valor en texto. Los botones son elementos <code>button</code> reales. El foco se
+      conserva al abrir y cerrar modales. En pantallas pequeñas el tablero se desplaza horizontalmente
+      dentro de su contenedor, sin desbordar la página; las columnas reducen su ancho y las cartas
+      conservan proporción.
+    </p>
+
+    <h3>7.4 Inspector de estructuras</h3>
+    <p>
+      El inspector es una herramienta de aprendizaje y de sustentación. Muestra el frente de la cola, el
+      tope del descarte, las cuatro fundaciones, las siete columnas con sus recorridos de ida y vuelta,
+      el cursor de la lista circular, los recorridos del BST y el tamaño de las pilas de deshacer y
+      rehacer. Todo se obtiene de <code>getDebugInfo()</code>, sin duplicar estado ni simular datos.
+    </p>
+
+    <figure class="figure">
+      <img src="img/04-inspector.png" alt="Inspector de estructuras con la cola, la pila del descarte, las fundaciones y las columnas">
+      <figcaption class="figure__caption">
+        <strong>Figura 1.</strong> Inspector de estructuras durante una partida. Los datos corresponden
+        al estado real del motor.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ 8 -->
+  <section>
+    <h2>8. Pruebas y validación</h2>
+
+    <h3>8.1 Suite automatizada</h3>
+    <p>
+      Las pruebas se ejecutan en el navegador desde <code>http://localhost:8000/tests/</code>. El
+      runner es propio: registra cada prueba, la ejecuta en orden, captura errores y muestra un resumen
+      con la cantidad de aprobadas, fallidas y el total. No usa Jest, Mocha ni ninguna dependencia.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Bloque</th><th>Pruebas</th><th>Qué cubre</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Pila</td><td class="num">3</td><td>Apilar, desapilar, LIFO, <code>clear</code> y <code>toArray</code>.</td></tr>
+        <tr><td>Cola</td><td class="num">3</td><td>Encolar, desencolar, FIFO, frente y <code>clear</code>.</td></tr>
+        <tr><td>Lista doble</td><td class="num">5</td><td>Inserciones, recorridos, búsqueda, eliminación, <code>splitFrom</code> y errores de rango.</td></tr>
+        <tr><td>Lista circular</td><td class="num">3</td><td>Inserción, recorrido, búsqueda, cursor y vueltas completas.</td></tr>
+        <tr><td>BST</td><td class="num">4</td><td>Inserción, búsqueda, recorridos, mínimo/máximo, altura, eliminación de hoja/uno/dos hijos y duplicados.</td></tr>
+        <tr><td>Juego y reglas</td><td class="num">15</td><td>Reparto, robo, reciclaje, pases, movimientos, grupos, reyes, deshacer, autocompletar, victoria, derrota y reglas.</td></tr>
+        <tr><td>Ranking</td><td class="num">2</td><td>Inserción, orden, búsqueda, eliminación, poda y <code>qualifies</code>.</td></tr>
+        <tr><td>Pistas y fin de partida</td><td class="num">5</td><td>Pistas de fundación/robo/reciclaje/ninguna, fundación a columna, rendición con deshacer, pases infinitos y snapshot inválido.</td></tr>
+      </tbody>
+    </table>
+
+    <figure class="figure">
+      <img src="img/10-pruebas-resumen.png" alt="Resumen de la suite: 40 pruebas aprobadas, 0 fallidas, 40 total">
+      <figcaption class="figure__caption">
+        <strong>Figura 2.</strong> Resumen de la ejecución completa en Firefox. La captura con los 40
+        nombres y sus marcas de aprobación está en <code>docs/img/10-pruebas.png</code>.
+      </figcaption>
+    </figure>
+
+    <h3>8.2 Cómo ejecutar las pruebas</h3>
+    <ol>
+      <li>Iniciar el servidor local con <code>python3 -m http.server 8000</code> desde la raíz del proyecto.</li>
+      <li>Abrir <code>http://localhost:8000/tests/</code> en el navegador.</li>
+      <li>Verificar el resumen verde: <strong>40 pruebas aprobadas · 0 fallidas · 40 total</strong>.</li>
+      <li>Si se modifica un módulo, recargar con <code>Ctrl</code> + <code>F5</code> o reiniciar el navegador; los módulos ES se cachean con fuerza.</li>
+    </ol>
+
+    <h3>8.3 Validación manual en navegador</h3>
+    <table class="table--compact">
+      <thead>
+        <tr><th>Escenario</th><th>Resultado esperado</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Robo de 1 y de 3 cartas</td><td>El descarte recibe la cantidad correcta y el contador de movimientos aumenta.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Selección de carta</td><td>Borde dorado y destinos válidos resaltados.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Arrastrar y soltar</td><td>El grupo se mueve solo a destinos válidos; los inválidos no aceptan el <em>drop</em>.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Doble clic a fundación</td><td>La carta sube si es la siguiente del palo.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Pistas</td><td>Resalta carta y destino; avisa cuando no hay movimientos.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Deshacer y rehacer</td><td>El estado, el puntaje y los contadores vuelven al punto anterior.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Rendición</td><td>Marca derrota, muestra el modal y permite deshacer al cerrarlo.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ajustes</td><td>Se guardan y se aplican a la siguiente partida.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ranking</td><td>Guarda, ordena, muestra y borra con confirmación.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Inspector</td><td>Refleja el estado real de las estructuras.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Teclado</td><td><code>D</code>, <code>U</code>, <code>Y</code>, <code>P</code>, <code>I</code>, <code>Esc</code> y <code>Enter</code> funcionan.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Móvil</td><td>Sin desbordamiento horizontal; el tablero se desplaza dentro de su contenedor.</td><td><span class="check">✓</span></td></tr>
+        <tr><td>Consola</td><td>Sin errores ni promesas rechazadas durante los recorridos.</td><td><span class="check">✓</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ 9 -->
+  <section class="page-break">
+    <h2>9. Cumplimiento de los requisitos</h2>
+    <p>
+      La siguiente tabla relaciona cada exigencia de la consigna con la implementación y la evidencia
+      disponible en el repositorio.
+    </p>
+
+    <table class="table--compact">
+      <thead>
+        <tr><th>Requisito</th><th>Cómo se cumple</th><th>Evidencia</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Juego completo de inicio a fin</td>
+          <td>Klondike con reparto, movimientos, pases, puntaje, victoria, derrota, reinicio y ranking.</td>
+          <td>Juego en <code>/</code>; pruebas 19 a 40.</td>
+        </tr>
+        <tr>
+          <td>Cinco estructuras propias</td>
+          <td>Pila, cola, lista circular, lista doble y BST con nodos y referencias.</td>
+          <td><code>src/structures/</code>; pruebas 1 a 18; inspector.</td>
+        </tr>
+        <tr>
+          <td>Cada estructura cumple un papel real</td>
+          <td>Descarte/fundaciones/deshacer, mazo, pases, columnas y ranking.</td>
+          <td>Sección 4; <code>KlondikeGame.js</code>; <code>Leaderboard.js</code>.</td>
+        </tr>
+        <tr>
+          <td>Interfaz gráfica</td>
+          <td>Menú, tablero, ranking, ajustes, modales, inspector y diseño adaptable.</td>
+          <td>Capturas del manual de usuario; <code>src/ui/</code>.</td>
+        </tr>
+        <tr>
+          <td>Reglas y validación de jugadas</td>
+          <td><code>Rules.js</code> y métodos <code>canMove*</code>; mensajes de error sin bloquear la partida.</td>
+          <td>Pruebas 24 a 28 y 33.</td>
+        </tr>
+        <tr>
+          <td>Robo de 1 y 3; pases 3, 5 e ilimitados</td>
+          <td>Ajustes persistentes y <code>CircularList</code> para el ciclo de pases.</td>
+          <td><code>src/config.js</code>; pruebas 20 a 23 y 39.</td>
+        </tr>
+        <tr>
+          <td>Victoria y derrota</td>
+          <td>Fundaciones completas; sin movimientos ni pases; rendición.</td>
+          <td>Pruebas 31, 32 y 38; modal de fin de partida.</td>
+        </tr>
+        <tr>
+          <td>Manual de usuario</td>
+          <td>Documento en español con reglas, controles, capturas y preguntas frecuentes.</td>
+          <td><code>docs/Manual_Usuario_Klondike.pdf</code>.</td>
+        </tr>
+        <tr>
+          <td>Manual técnico</td>
+          <td>Este documento: arquitectura, estructuras, complejidad, pruebas y sustentación.</td>
+          <td><code>docs/Manual_Tecnico_Klondike.pdf</code>.</td>
+        </tr>
+        <tr>
+          <td>Diagrama de clases</td>
+          <td>Diagrama UML generado con Graphviz, con atributos, métodos y relaciones.</td>
+          <td><code>docs/diagrama-clases.png</code> y <code>.svg</code>; Anexo A.</td>
+        </tr>
+        <tr>
+          <td>Pruebas y evidencia</td>
+          <td>Suite propia de 40 pruebas y validación manual documentada.</td>
+          <td><code>/tests/</code>; Figura 2; sección 8.3.</td>
+        </tr>
+        <tr>
+          <td>Repositorio con aportes del equipo</td>
+          <td>Git con rama <code>main</code>, commits de ambos integrantes y documento de aportes.</td>
+          <td>Historial de GitHub; sección 11.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout--ok">
+      <p class="callout__title">Sobre el uso de estructuras</p>
+      <p>
+        La consigna permite usar las estructuras de otra forma si se justifica. En este proyecto se
+        eligió la asignación más natural para el solitario: pila para lo que se apila, cola para lo que
+        se consume en orden, lista circular para el ciclo de pases, lista doble para columnas que se
+        recorren en ambos sentidos y BST para un ranking ordenado. Cada elección se explica en la
+        sección 4.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 10 -->
+  <section class="page-break">
+    <h2>10. Ejecución y despliegue</h2>
+
+    <h3>10.1 Servidor local</h3>
+    <p>
+      El proyecto usa módulos ES, por lo que debe abrirse por HTTP. Con Python 3 instalado:
+    </p>
+    <pre><code>cd ProyectoFinal
+python3 -m http.server 8000</code></pre>
+    <p>
+      Luego abrir <code>http://localhost:8000</code> para jugar y
+      <code>http://localhost:8000/tests/</code> para las pruebas.
+    </p>
+
+    <h3>10.2 Alternativas</h3>
+    <table>
+      <thead>
+        <tr><th>Opción</th><th>Pasos</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Live Server (VS Code)</td><td>Abrir la carpeta, clic derecho en <code>index.html</code> y elegir <strong>Open with Live Server</strong>.</td></tr>
+        <tr><td>GitHub Pages</td><td>Publicar la rama <code>main</code> desde la configuración del repositorio; la página queda disponible en la URL del proyecto.</td></tr>
+        <tr><td>Servidor propio</td><td>Cualquier servidor estático que respete las rutas relativas y los tipos MIME de <code>.js</code> como <code>text/javascript</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>10.3 Compatibilidad</h3>
+    <p>
+      El juego se probó en Firefox 160 en Linux. Usa características estándar de ES2022 (campos privados
+      de clase, módulos, <code>Object.freeze</code>, <code>structuredClone</code> no requerido) y
+      <code>localStorage</code>. Debe funcionar en Chrome, Edge y Safari recientes. No requiere conexión
+      a internet una vez cargado.
+    </p>
+
+    <h3>10.4 Estructura de la entrega</h3>
+    <table>
+      <thead>
+        <tr><th>Elemento</th><th>Ubicación</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Código del juego</td><td><code>index.html</code>, <code>src/</code>, <code>styles/</code></td></tr>
+        <tr><td>Pruebas</td><td><code>tests/</code></td></tr>
+        <tr><td>Manual de usuario</td><td><code>docs/Manual_Usuario_Klondike.pdf</code> y su fuente HTML</td></tr>
+        <tr><td>Manual técnico</td><td><code>docs/Manual_Tecnico_Klondike.pdf</code> y su fuente HTML</td></tr>
+        <tr><td>Diagrama de clases</td><td><code>docs/diagrama-clases.svg</code>, <code>.png</code>, <code>.dot</code></td></tr>
+        <tr><td>Evidencia de pruebas</td><td><code>docs/img/10-pruebas.png</code></td></tr>
+        <tr><td>Presentación del repositorio</td><td><code>README.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ 11 -->
+  <section class="page-break">
+    <h2>11. Aportes del equipo y guía de sustentación</h2>
+
+    <h3>11.1 Roles</h3>
+    <table>
+      <thead>
+        <tr><th>Integrante</th><th>Aportes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Miguel Angel Vergara Morales</strong></td>
+          <td>Diseño de la arquitectura, implementación de las cinco estructuras, motor de juego, interfaz, pruebas base, diagrama de clases y documentación técnica.</td>
+        </tr>
+        <tr>
+          <td><strong>Danney Yuliana Medina Males</strong></td>
+          <td>Pruebas de refuerzo de las estructuras, revisión funcional del manual de usuario y preparación de la demostración. Los detalles y comandos de su aporte están en el historial de commits del repositorio.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>11.2 Qué debe poder explicar cada integrante</h3>
+    <ul>
+      <li>Por qué cada estructura se usa en esa zona del juego y qué pasaría si se reemplazara por un arreglo.</li>
+      <li>La diferencia entre LIFO y FIFO, y un ejemplo concreto dentro del juego.</li>
+      <li>Cómo funciona el cursor de la lista circular y qué ocurre cuando se agotan los pases.</li>
+      <li>Cómo se mueve un grupo entre columnas y por qué se usa <code>splitFrom</code>.</li>
+      <li>Cómo se inserta, busca y elimina en el BST, y cómo se obtiene el top 10 con el recorrido inorden.</li>
+      <li>Cómo se guarda una instantánea y por qué el deshacer no necesita revertir cada movimiento a mano.</li>
+      <li>Cómo se detecta la victoria y la derrota, y qué pasa al rendirse.</li>
+      <li>Cómo se ejecutan las pruebas y qué significa cada bloque de la tabla 8.1.</li>
+    </ul>
+
+    <h3>11.3 Guion de demostración (10 minutos)</h3>
+    <ol>
+      <li><strong>Menú (1 min):</strong> mostrar modalidad, mejor puntaje y ajustes. Cambiar a robo de 3 y 5 pases.</li>
+      <li><strong>Partida (3 min):</strong> robar, seleccionar, mover a fundación, mover un grupo, usar pista y deshacer/rehacer.</li>
+      <li><strong>Inspector (2 min):</strong> abrir estructuras y señalar la cola del mazo, la pila del descarte, una columna con recorrido de ida y vuelta, el cursor de pases y los recorridos del BST.</li>
+      <li><strong>Ranking (1 min):</strong> mostrar el top, explicar la clave y la poda, y borrar con confirmación.</li>
+      <li><strong>Pruebas (2 min):</strong> abrir <code>/tests/</code>, mostrar el resumen 40/40 y explicar dos pruebas: <code>splitFrom</code> y derrota sin movimientos.</li>
+      <li><strong>Cierre (1 min):</strong> repasar la tabla de complejidades y las limitaciones.</li>
+    </ol>
+
+    <h3>11.4 Preguntas frecuentes de sustentación</h3>
+    <h4>¿Por qué no usaron arreglos para las pilas y colas?</h4>
+    <p>
+      Porque el objetivo de la asignatura es implementar las estructuras desde cero. Además, las
+      operaciones de la pila y la cola quedan en O(1) sin desplazamientos, y el código muestra
+      explícitamente los nodos y las referencias.
+    </p>
+    <h4>¿Dónde se usa realmente la lista circular?</h4>
+    <p>
+      En <code>KlondikeGame.#buildPasses()</code> y en <code>recycle()</code>. La lista contiene los
+      pases 1..límite; el cursor marca el pase actual y <code>advance()</code> lo mueve en O(1) al
+      reciclar. El inspector muestra el cursor en vivo.
+    </p>
+    <h4>¿Qué pasa si el jugador pierde y luego deshace?</h4>
+    <p>
+      La rendición y la derrota guardan una instantánea antes de cambiar el estado. Al deshacer se
+      restaura el estado <code>playing</code>, el puntaje y los contadores; por eso el modal de derrota
+      se puede cerrar y continuar.
+    </p>
+    <h4>¿Cómo se evita que un puntaje repetido borre otro?</h4>
+    <p>
+      Las claves iguales se insertan a la derecha. El recorrido inorden las devuelve todas y la poda
+      elimina el mínimo, no una clave arbitraria. Así los empates se conservan hasta que el límite de 10
+      los desplace.
+    </p>
+    <h4>¿Por qué el juego no guarda la partida en curso?</h4>
+    <p>
+      Para mantener el alcance controlado y evitar estados corruptos entre versiones. Sí se guardan los
+      ajustes y el ranking, que son los datos que el jugador espera conservar. La partida se puede
+      reiniciar con la misma semilla si se necesita reproducir.
+    </p>
+  </section>
+
+  <!-- ============================================================ 12 -->
+  <section>
+    <h2>12. Conclusiones y trabajo futuro</h2>
+
+    <h3>12.1 Resultados</h3>
+    <ul>
+      <li>El juego está completo y es jugable de principio a fin, con reglas, puntaje, ayuda y ranking.</li>
+      <li>Las cinco estructuras están implementadas con nodos y referencias, y cada una tiene un uso verificable en el juego.</li>
+      <li>La separación entre lógica e interfaz permitió probar el motor sin DOM y mantener la vista simple.</li>
+      <li>Las 40 pruebas automatizadas y la validación manual cubren los caminos críticos y los errores previsibles.</li>
+      <li>La documentación incluye manual de usuario, manual técnico, diagrama de clases y evidencia de pruebas.</li>
+    </ul>
+
+    <h3>12.2 Limitaciones</h3>
+    <ul>
+      <li>La partida en curso no se persiste; al recargar la página se pierde.</li>
+      <li>El ranking es local y no se sincroniza entre navegadores o dispositivos.</li>
+      <li>El autocompletado solo se habilita cuando no quedan cartas boca abajo, para no revelar información.</li>
+      <li>El diseño está optimizado para ratón y teclado; el arrastre táctil depende del navegador.</li>
+    </ul>
+
+    <h3>12.3 Mejoras posibles</h3>
+    <ul>
+      <li>Guardar la partida en curso y ofrecer “continuar” desde el menú.</li>
+      <li>Añadir animaciones de reparto y de movimiento de cartas.</li>
+      <li>Incluir estadísticas históricas por modalidad y gráficos de progreso.</li>
+      <li>Permitir varios perfiles locales y un ranking por modalidad.</li>
+      <li>Internacionalizar la interfaz y los manuales.</li>
+    </ul>
+
+    <h3>12.4 Aprendizajes</h3>
+    <p>
+      El proyecto permitió comprobar que una estructura de datos no es un ejercicio aislado: cada
+      decisión (una pila para el descarte, una cola para el mazo, un cursor circular para los pases, una
+      lista doble para las columnas y un BST para el ranking) simplifica el código y hace explícita la
+      semántica del juego. También mostró la importancia de separar la lógica de la interfaz y de escribir
+      pruebas con estados controlados.
+    </p>
+  </section>
+
+  <!-- ============================================================ 13 -->
+  <section class="page-break">
+    <h2>13. Referencias</h2>
+    <ul>
+      <li>MDN Web Docs. <em>JavaScript — Modules</em>, <em>Classes</em>, <em>Private class fields</em>, <em>Drag and drop API</em>.</li>
+      <li>MDN Web Docs. <em>Web Storage API</em> (<code>localStorage</code>).</li>
+      <li>Documentación de JSDoc. <em>Anotaciones <code>@param</code>, <code>@returns</code> y etiquetas personalizadas</em>.</li>
+      <li>Graphviz. <em>DOT Language</em> y <em>dot command-line tool</em>.</li>
+      <li>Poppler. <em>pdftoppm</em>, <em>pdfinfo</em> y <em>pdftotext</em> para la revisión de los PDF.</li>
+      <li>Consigna del proyecto final de Estructuras de Datos, noviembre de 2026.</li>
+    </ul>
+
+    <h3>Herramientas utilizadas</h3>
+    <table>
+      <thead>
+        <tr><th>Herramienta</th><th>Uso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Firefox 160</td><td>Ejecución del juego, pruebas y generación de PDF con <code>WebDriver:Print</code>.</td></tr>
+        <tr><td>Python 3</td><td>Servidor HTTP local, cliente Marionette y scripts de captura.</td></tr>
+        <tr><td>Graphviz <code>dot</code></td><td>Generación del diagrama de clases en SVG y PNG.</td></tr>
+        <tr><td>Poppler</td><td>Conversión de páginas PDF a imágenes para revisión visual.</td></tr>
+        <tr><td>Git y GitHub</td><td>Control de versiones, repositorio remoto y publicación.</td></tr>
+        <tr><td>VS Code</td><td>Edición, servidor Live Server y gestión del repositorio.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ ANEXO -->
+  <section class="page-break">
+    <h2>Anexo A. Diagrama de clases</h2>
+    <p>
+      El diagrama muestra las cinco estructuras, la lógica del juego y la interfaz. Las flechas
+      discontinuas indican dependencia o uso; los clusters agrupan las capas. La versión vectorial
+      (<code>docs/diagrama-clases.svg</code>) se puede ampliar sin pérdida. En el PDF, la página final
+      reproduce el diagrama en tamaño A3 horizontal para facilitar su lectura.
+    </p>
+
+    <figure class="figure figure--diagram">
+      <img src="diagrama-clases.png" alt="Diagrama de clases con las estructuras, la lógica del juego y la interfaz">
+      <figcaption class="figure__caption">
+        <strong>Figura A.1.</strong> Diagrama de clases completo. Cada clase muestra sus atributos y
+        métodos principales; las relaciones se explican en las secciones 2 y 4.
+      </figcaption>
+    </figure>
+
+    <div class="callout callout--info">
+      <p class="callout__title">Cómo regenerar el diagrama</p>
+      <pre><code>cd docs
+dot -Tsvg diagrama-clases.dot -o diagrama-clases.svg
+dot -Tpng -Gdpi=150 diagrama-clases.dot -o diagrama-clases.png</code></pre>
+      <p class="small">
+        El archivo <code>diagrama-clases.dot</code> es la fuente editable. Si se agrega una clase o un
+        método, se actualiza el <code>.dot</code> y se vuelven a generar las imágenes.
+      </p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

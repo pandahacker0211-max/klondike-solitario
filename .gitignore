@@ -1,0 +1,16 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Dependencias (el proyecto no las usa, pero evitamos subirlas si aparecen)
+node_modules/
+
+# PDF del enunciado de la asignatura
+/Proyecto final*.pdf
+
+# Archivos temporales
+*.log
